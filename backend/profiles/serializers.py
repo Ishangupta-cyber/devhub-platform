@@ -5,13 +5,13 @@ from .models import Follow
 
 class ProfileSerializer(serializers.ModelSerializer):
 
-  follower_count=serializers.IntegerField(read_only=True)
+  followers_count=serializers.IntegerField(read_only=True)
   following_count=serializers.IntegerField(read_only=True)
   is_following=serializers.SerializerMethodField()
 
   class Meta:
     model=User
-    fields = ['username', 'full_name', 'bio', 'avatar', 'follower_count', 'following_count','is_following']
+    fields = ['username', 'full_name', 'bio', 'avatar', 'followers_count', 'following_count','is_following']
 
   def get_is_following(self,obj):
     request=self.context.get('request')
