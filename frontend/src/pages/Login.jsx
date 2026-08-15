@@ -1,6 +1,8 @@
 import React from 'react'
 import { useState } from 'react'
 import { loginUser } from '../api/auth'
+import { useAuth } from '../hooks/useAuth'
+import { useNavigate } from 'react-router-dom'
 
 function Login() {
 
@@ -8,27 +10,35 @@ function Login() {
   const [password,setPassword]=useState("")
   const [loading,setLoading]=useState(false)
   const[error,setError]=useState("")
+  const {login}=useAuth()
+  const navigate=useNavigate()
 
   const handleSubmit=async(e)=>{
-
-    e.preventdefault()
+    console.log("form submit");
+    
+    e.preventDefault()
     setError("")
     setLoading(true)
     try {
       const { data } = await loginUser(email, password)
-      console.log('Login success:', data)
-    } catch (err) {
-      const message = err.response?.data?.detail || 'Login failed. Check your credentials.'
-      setError(message)
-    } finally {
+      login({access:data.access,refresh:data.refresh})
       setLoading(false)
-    }
+      navigate("/")
+    } 
+    catch (err) {
+      if (!err.response) {
+    setError('Cannot reach server. Check your connection or CORS settings.')
+      }
+     else {
+    setError(err.response.data?.detail || 'Login failed. Check your credentials.')
   }
-    
+  setLoading(false)
+}
+  }
 
  return (
     <div className="min-h-screen bg-[#0B0F1A] flex items-center justify-center p-6 relative overflow-hidden">
-      
+
       <div
         className="absolute inset-0 opacity-[0.15]"
         style={{ backgroundImage: 'radial-gradient(#3A4166 1px, transparent 1px)', backgroundSize: '24px 24px' }}
