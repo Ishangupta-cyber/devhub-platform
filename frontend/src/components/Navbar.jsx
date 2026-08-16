@@ -5,8 +5,8 @@ function Navbar() {
   const {logout,user} =useAuth()
   const navigate=useNavigate()
 
-  function handleLogout(){
-    logout()
+  async function  handleLogout(){
+    await logout()
     navigate("/login")
   }
 
@@ -24,6 +24,13 @@ function Navbar() {
           <span className="text-sm text-[#8B90A8]">@{user.username}</span>
         )}
       </div>
+
+      <Link to="/edit-profile" className="text-sm text-[#8B90A8] hover:text-[#E4E7F2] mr-4">
+        Edit Profile
+      </Link>
+      <Link to="/change-password" className="text-sm text-[#8B90A8] hover:text-[#E4E7F2] mr-4">
+        Change Password
+      </Link>
 
       {user && (
         <button onClick={handleLogout} className='text-sm text-[#8B90A8] hover:text-[#E4E7F2] transition-colors'>Logout</button>

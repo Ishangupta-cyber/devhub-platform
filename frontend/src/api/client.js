@@ -1,4 +1,5 @@
 import axios from "axios"
+import {refreshToken} from "./auth"
 
 const apiClient=axios.create({
   baseURL:import.meta.env.VITE_API_URL,
@@ -15,12 +16,38 @@ apiClient.interceptors.request.use((config)=>{
   return config
 })
 
+
 apiClient.interceptors.response.use((response)=>response,
-(error)=>{
-  if(error.response.status===401){
-    localStorage.removeItem("accesstoken")
-    window.location.href="/login"
+async (error)=>{
+  originalRequest=error.config
+
+  if (error.response?.status===401 && !originalRequest._retry){
+    originalRequest._retry=true
+
+    const refreshToken=localStorage.getItem("refreshToken")
+    if (!refreshToken){
+      localStorage.removeItem("accessToken")  
+      localStorage.removeItem("refreshToken")
+      window.location.href="/login"
+      return Promise.reject(error)
+
+    }
+
+    try{
+      const respone= await refreshToken (refreshToken)
+      localStorage.setItem("accessToken",response.data.access)
+      originalRequest.headers.Authorization=`Bearer ${response.data.access}`
+      return apiClient(originalRequest)
+    }
+    catch(err){
+      localStorage.removeItem("accessToken")  
+      localStorage.removeItem("refreshToken")
+      window.location.href="/login"
+      return Promise.reject(err)
+    }
   }
+
+
   return Promise.reject(error)
 })
 

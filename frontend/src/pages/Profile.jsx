@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import {getProfile,followUser,unfollowUser} from "../api/profile"
-import { useParams } from "react-router-dom"
+import { Link, useParams } from "react-router-dom"
 import { useAuth } from "../hooks/useAuth"
 import Navbar from "../components/Navbar"
 
@@ -90,12 +90,12 @@ function Profile() {
 
         {/* Followers / Following row */}
         <div className="flex gap-4 text-sm text-[#8B90A8] mb-4">
-          <span>
-            <span className="text-[#E4E7F2] font-medium">{profileData?.followers_count || 0}</span> followers
-          </span>
-          <span>
+          <Link to={`/profile/${username}/followers`} className="hover:text-[#E4E7F2] transition-colors">
+          <span className="text-[#E4E7F2] font-medium">{profileData?.followers_count || 0}</span> followers
+          </Link>
+          <Link to={`/profile/${username}/following`} className="hover:text-[#E4E7F2] transition-colors">
             <span className="text-[#E4E7F2] font-medium">{profileData?.following_count || 0}</span> following
-          </span>
+          </Link>
         </div>
 
         {/* Follow/Unfollow button */}
@@ -105,7 +105,7 @@ function Profile() {
             disabled={followLoading}
             onClick={handleFollowToggle}
           >
-            Follow
+            {profileData.is_following?"UnFollow":"Follow"}
           </button>
         )}
 

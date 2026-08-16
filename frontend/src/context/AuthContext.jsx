@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import apiClient from "../api/client";
+import { getCurrentUser,logoutUser } from "../api/auth";
 
 export const AuthContext=createContext(null)
 
@@ -16,11 +17,11 @@ export function AuthProvider({children}){
       return 
     }
     try {
-      const res = await apiClient.get("auth/me")
-      console.log("Fetched user data:", res.data) // Debugging line
+      const res = await getCurrentUser()
       setUser(res.data)
     } catch (error) {
-      // interceptor will handle the error and redirect to login
+      console.error("Error fetching current user:", error.response?.data || error.message)
+      logout()
     }
     finally{
       setLoading(false)
@@ -37,10 +38,24 @@ export function AuthProvider({children}){
     setAccessToken(tokens.access)
   }
 
-  const logout = () => {
+  const logout = async() => {
+    const refreshToken = localStorage.getItem("refreshToken")
+    
+    try{
+      if (refreshToken){
+        await logoutUser()
+      }
+    }
+    catch(error){
+      console.error("Error logging out:", error.response?.data || error.message)
+    }
+    finally{
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
     setAccessToken(null)
+    }
+
+
   }
 
   const value = { user, isAuthenticated: !!accessToken, loading, login, logout }
