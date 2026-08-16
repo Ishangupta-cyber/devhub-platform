@@ -27,10 +27,14 @@ function Register() {
 
     setLoading(true)
     try {
-      const { data } = await registerUser(formData)
+      const { data } = await registerUser({ ...formData, password2: confirmPassword })
       console.log('Registered:', data)
     } catch (err) {
-      const message = err.response?.data?.detail || 'Registration failed. Try again.'
+      const fieldErrors = err.response?.data
+      const message =
+        fieldErrors?.detail ||
+        (fieldErrors && Object.values(fieldErrors)[0]?.[0]) ||
+        'Registration failed. Try again.'
       setError(message)
     } finally {
       setLoading(false)

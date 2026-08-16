@@ -6,6 +6,7 @@ import { useAuth } from './hooks/useAuth.js'
 import { AuthProvider } from './context/AuthContext.jsx'
 import { Route, Routes } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
+import Profile from './pages/Profile.jsx'
 
 const App=()=>{
   return(
@@ -21,6 +22,9 @@ const App=()=>{
           </ProtectedRoute>
         }
       />
+      <Route path='/profile/:username' element={<Profile/>} />
+
+      
       </Routes>
     </AuthProvider>
   )

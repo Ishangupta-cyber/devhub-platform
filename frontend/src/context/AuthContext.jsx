@@ -9,24 +9,26 @@ export function AuthProvider({children}){
   const [accessToken,setAccessToken]=useState(()=>localStorage.getItem('accessToken'))
   const [loading,setLoading]=useState(true)
 
-  useEffect(()=>{
-
-    if(!accessToken) {
+  const fetchUser=async()=>{
+    if(!accessToken){
       setUser(null)
       setLoading(false)
-      return
+      return 
     }
-    apiClient.get("/auth/me",{
-      headers:{Authorization:`Bearer ${accessToken}`}
-    }).then((res)=>{
+    try {
+      const res = await apiClient.get("auth/me")
+      console.log("Fetched user data:", res.data) // Debugging line
       setUser(res.data)
-    }).catch(()=>{
-      setAccessToken(null)
-      localStorage.removeItem('accessToken')
-
-    })
-    .finally(()=>setLoading(false))
-
+    } catch (error) {
+      // interceptor will handle the error and redirect to login
+    }
+    finally{
+      setLoading(false)
+    }
+  }
+  
+  useEffect(()=>{
+    fetchUser()
   },[accessToken])
 
   const login = (tokens) => {
@@ -42,7 +44,7 @@ export function AuthProvider({children}){
   }
 
   const value = { user, isAuthenticated: !!accessToken, loading, login, logout }
-
+  console.log("AuthContext value:", value) // Debugging line
   return (
     <AuthContext.Provider value={value}> {children} </AuthContext.Provider>
   )
