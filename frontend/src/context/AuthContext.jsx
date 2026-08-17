@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import apiClient from "../api/client";
-import { getCurrentUser,logoutUser } from "../api/auth";
+import { getCurrentUser,logoutUser } from "../features/auth/api/auth";
 
 export const AuthContext=createContext(null)
 

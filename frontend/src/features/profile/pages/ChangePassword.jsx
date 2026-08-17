@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { changePassword } from '../api/auth'
+import { changePassword } from '../../auth/api/auth'
 
 export default function ChangePassword() {
   const [loading,setLoading]=useState(false)

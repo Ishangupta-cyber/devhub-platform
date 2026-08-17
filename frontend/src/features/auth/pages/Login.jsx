@@ -1,7 +1,7 @@
 import React from 'react'
 import { useState } from 'react'
 import { loginUser } from '../api/auth'
-import { useAuth } from '../hooks/useAuth'
+import { useAuth } from '../../../hooks/useAuth'
 import { useNavigate } from 'react-router-dom'
 
 function Login() {

@@ -1,5 +1,5 @@
 import axios from "axios";
-import apiClient from "./client";
+import apiClient from "../../../api/client";
 
 export const loginUser= (email,password) =>{
   return apiClient.post('/auth/login/', { email, password })

@@ -1,64 +1,29 @@
-import React from 'react' 
-import Login from './pages/Login.jsx'
-import Register from './pages/Register.jsx'
-import Home from './pages/Home.jsx'
-import { useAuth } from './hooks/useAuth.js'
-import { AuthProvider } from './context/AuthContext.jsx'
+import React from 'react'
 import { Route, Routes } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
-import Profile from './pages/Profile.jsx'
-import FollowList from './pages/FollowList.jsx'
-import EditProfile from './pages/EditProfile.jsx'
-import ChangePassword from './pages/ChangePassword.jsx'
+import Home from './pages/Home.jsx'
+import authRoutes from './features/auth/routes.jsx'
+import profileRoutes from './features/profile/routes.jsx'
+import repositoryRoutes from './features/repositories/routes.jsx'
+import issueRoutes from './features/issues/routes.jsx'
 
-const App=()=>{
-  return(
+const App = () => {
+  return (
     <AuthProvider>
       <Routes>
-        <Route path='/login' element={<Login/>} />
-        <Route path='/register' element={<Register/>}  />
+        {authRoutes}
         <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <Home />
-          </ProtectedRoute>
-        }
-      />
-      <Route path='/profile/:username' element={<Profile/>} />
-      <Route
-      path="/profile/:username/followers"
-      element={
-        <ProtectedRoute>
-          <FollowList type="followers" />
-        </ProtectedRoute>
-      }
-      />
-      <Route
-      path="/profile/:username/following"
-      element={
-        <ProtectedRoute>
-          <FollowList type="following"/>
-        </ProtectedRoute>
-      }
-      />
-      <Route path="/edit-profile/"
-      element={
-        <ProtectedRoute>
-          <EditProfile/>
-        </ProtectedRoute>
-      }
-      />
-      <Route
-      path="/change-password"
-      element={
-        <ProtectedRoute>
-          <ChangePassword/>
-        </ProtectedRoute>
-      }
-      />
-
-      
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
+        {profileRoutes}
+        {repositoryRoutes}
+        {issueRoutes}
       </Routes>
     </AuthProvider>
   )

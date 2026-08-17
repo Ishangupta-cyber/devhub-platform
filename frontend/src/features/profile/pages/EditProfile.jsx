@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import {useState} from "react"
-import { useAuth } from '../hooks/useAuth'
-import { updateProfile } from '../api/auth'
+import { useAuth } from '../../../hooks/useAuth'
+import { updateProfile } from '../../auth/api/auth'
 import { useNavigate } from 'react-router-dom'
  
 export default function EditProfile() {

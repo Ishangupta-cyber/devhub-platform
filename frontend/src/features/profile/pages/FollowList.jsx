@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { useAuth } from '../hooks/useAuth'
+import { useAuth } from '../../../hooks/useAuth'
 import {getFollowers,getFollwing} from '../api/profile'
 
 export default function FollowList({type}) {

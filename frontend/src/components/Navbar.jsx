@@ -36,6 +36,10 @@ function Navbar() {
         <button onClick={handleLogout} className='text-sm text-[#8B90A8] hover:text-[#E4E7F2] transition-colors'>Logout</button>
       )}
 
+      <Link to="/repositories" className="text-sm text-[#8B90A8] hover:text-[#E4E7F2] mr-4">
+      Repositories
+    </Link>
+
     </nav>
   )
 }

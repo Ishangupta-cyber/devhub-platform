@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
 import {getProfile,followUser,unfollowUser} from "../api/profile"
 import { Link, useParams } from "react-router-dom"
-import { useAuth } from "../hooks/useAuth"
-import Navbar from "../components/Navbar"
+import { useAuth } from "../../../hooks/useAuth"
+import Navbar from "../../../components/Navbar"
 
 function Profile() {
   const [profileData,setProfileData]=useState(null)

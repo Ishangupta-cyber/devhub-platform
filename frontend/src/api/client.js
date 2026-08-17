@@ -1,5 +1,5 @@
 import axios from "axios"
-import {refreshToken} from "./auth"
+import {refreshToken} from "../features/auth/api/auth"
 
 const apiClient=axios.create({
   baseURL:import.meta.env.VITE_API_URL,
