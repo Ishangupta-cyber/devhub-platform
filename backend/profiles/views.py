@@ -8,6 +8,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Follow
+from repositories.serializers import RepositorySerializer
+from repositories.models import Repository
 
 # Create your views here.
 
@@ -81,3 +83,12 @@ class FollowingListView(ListAPIView):
       target_user=get_object_or_404(User,username=self.kwargs['username'])
       following_ids=Follow.objects.filter(follower=target_user).values_list("following_id",flat=True)
       return User.objects.filter(id__in=following_ids).annotate(followers_count=Count('followers'),following_count=Count("following"))
+
+
+class UserRepositoriesListView(ListAPIView):
+   serializer_class=RepositorySerializer
+   permission_classes=[AllowAny]
+
+   def get_queryset(self):
+      target_user=get_object_or_404(User,username=self.kwargs["username"])
+      return Repository.objects.filter(owner=target_user)
