@@ -30,8 +30,3 @@ class IssueDetailView(RetrieveUpdateAPIView):
 
   def get_queryset(self):
     return Issue.objects.filter(repository_id=self.kwargs['repo_id'])
-
-    
-
-
-

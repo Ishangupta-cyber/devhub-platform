@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'profiles',
     'repositories',
-    'issues'
+    'issues',
+     'comments',
 ]
 
 MIDDLEWARE = [

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import {listIssues} from '../api/issues'
 
 export default function Issues() {
   const [loading,setLoading]=useState(true)
   const{repoId}=useParams()
-  const[issues,setIssues]=useEffect([])
+  const[issues,setIssues]=useState([])
 
   useEffect(()=>{
     const fetchIssues=async()=>{
@@ -22,8 +22,6 @@ export default function Issues() {
     fetchIssues()
 
   },[repoId])
-
-
 
 
    if (loading) return <div className="min-h-screen bg-[#0B0F1A]" />

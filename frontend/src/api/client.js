@@ -19,14 +19,14 @@ apiClient.interceptors.request.use((config)=>{
 
 apiClient.interceptors.response.use((response)=>response,
 async (error)=>{
-  originalRequest=error.config
+  const originalRequest=error.config
 
   if (error.response?.status===401 && !originalRequest._retry){
     originalRequest._retry=true
 
-    const refreshToken=localStorage.getItem("refreshToken")
-    if (!refreshToken){
-      localStorage.removeItem("accessToken")  
+    const storedRefreshToken=localStorage.getItem("refreshToken")
+    if (!storedRefreshToken){
+      localStorage.removeItem("accessToken")
       localStorage.removeItem("refreshToken")
       window.location.href="/login"
       return Promise.reject(error)
@@ -34,13 +34,13 @@ async (error)=>{
     }
 
     try{
-      const respone= await refreshToken (refreshToken)
+      const response= await refreshToken(storedRefreshToken)
       localStorage.setItem("accessToken",response.data.access)
       originalRequest.headers.Authorization=`Bearer ${response.data.access}`
       return apiClient(originalRequest)
     }
     catch(err){
-      localStorage.removeItem("accessToken")  
+      localStorage.removeItem("accessToken")
       localStorage.removeItem("refreshToken")
       window.location.href="/login"
       return Promise.reject(err)

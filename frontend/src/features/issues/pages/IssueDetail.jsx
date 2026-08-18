@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '../../../hooks/useAuth'
 import { getIssue, updateIssue } from '../api/issues'
 import { getRepository } from '../../repositories/api/repositories'
@@ -17,8 +17,8 @@ export default function IssueDetail() {
     
       Promise.all([getIssue(repoId,issueId),getRepository(repoId)])
       .then(([issueRes,repoRes])=>{
-        setIssue(issueRes)  
-        setRepo(repoRes)
+        setIssue(issueRes.data)
+        setRepo(repoRes.data)
       })
       .catch(()=>setIssue(null))
       .finally(()=>setLoading(false))

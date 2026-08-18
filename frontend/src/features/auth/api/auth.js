@@ -15,7 +15,7 @@ export const getCurrentUser = () => {
 }
 
 export const refreshToken=(refreshToken)=>{
-  return axios.post('/auth/refresh/',{
+  return axios.post(`${import.meta.env.VITE_API_URL}/auth/refresh/`,{
     refresh:refreshToken
   })
 }
