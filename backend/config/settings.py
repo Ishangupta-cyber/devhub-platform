@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'repositories',
     'issues',
      'comments',
+     'pull_requests'
 ]
 
 MIDDLEWARE = [
