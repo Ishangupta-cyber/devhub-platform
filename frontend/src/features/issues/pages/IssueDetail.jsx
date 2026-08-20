@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '../../../hooks/useAuth'
 import { getIssue, updateIssue } from '../api/issues'
 import { getRepository } from '../../repositories/api/repositories'
+import CommentSection from '../../comments/components/CommentSection'
 
 export default function IssueDetail() {
   const [error,setError]=useState("")
@@ -40,6 +41,7 @@ export default function IssueDetail() {
 
  if (loading) return <div className="min-h-screen bg-[#0B0F1A]" />
   if (!issue) return <div className="min-h-screen bg-[#0B0F1A] text-[#E4E7F2] text-center pt-20">Issue not found.</div>
+
     return (
     <div className="min-h-screen bg-[#0B0F1A] p-6">
       <div className="max-w-2xl mx-auto bg-[#12162A] border border-[#242B45] rounded-xl p-8">
@@ -75,6 +77,9 @@ export default function IssueDetail() {
             Close issue
           </button>
         )}
+
+        <CommentSection issueId={issueId} isRepoOwner={isRepoOwner} currentUsername={user?.username}  />
+
       </div>
     </div>
   )

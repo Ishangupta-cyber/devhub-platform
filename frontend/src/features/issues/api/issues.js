@@ -17,3 +17,5 @@ export const createIssue = (repoId, data) => {
 export const updateIssue = (repoId, issueId, data) => {
   return apiClient.patch(`/repositories/${repoId}/issues/${issueId}/`, data)
 }
+
+

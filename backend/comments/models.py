@@ -6,7 +6,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 
 
 class Comments(models.Model):
-  content=models.TextField
+  content=models.TextField(blank=True)
   author=models.ForeignKey(to=settings.AUTH_USER_MODEL,related_name="comments",on_delete=models.CASCADE)
 
   content_type=models.ForeignKey(to=ContentType,on_delete=models.CASCADE)
