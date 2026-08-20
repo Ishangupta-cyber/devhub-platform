@@ -7,6 +7,7 @@ import authRoutes from './features/auth/routes.jsx'
 import profileRoutes from './features/profile/routes.jsx'
 import repositoryRoutes from './features/repositories/routes.jsx'
 import issueRoutes from './features/issues/routes.jsx'
+import pullRequestRoutes from './features/pullRequests/routes.jsx'
 
 const App = () => {
   return (
@@ -24,6 +25,7 @@ const App = () => {
         {profileRoutes}
         {repositoryRoutes}
         {issueRoutes}
+        {pullRequestRoutes}
       </Routes>
     </AuthProvider>
   )

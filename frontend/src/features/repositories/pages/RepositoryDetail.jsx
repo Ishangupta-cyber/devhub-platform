@@ -116,6 +116,9 @@ export default function RepositoryDetail() {
             <Link to={`/repositories/${id}/issues`} className="block mt-6 text-sm text-[#7C6FF5] hover:underline">
               View issues →
             </Link>
+            <Link to={`/repositories/${id}/pull-requests`} className="block mt-2 text-sm text-[#7C6FF5] hover:underline">
+              View pull requests →
+            </Link>
           </>
         )}
       </div>
