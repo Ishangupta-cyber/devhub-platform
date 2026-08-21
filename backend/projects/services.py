@@ -11,10 +11,10 @@ LINKABLE_MODELS = {
 
 
 def create_project(name,repository):
-  Project.objects.create(name=name,repository=repository)
+  return Project.objects.create(name=name,repository=repository)
 
 def create_column(name,project,position):
-  Column.objects.create(name=name,position=position,project=project)
+  return Column.objects.create(name=name,position=position,project=project)
 
 def add_card(link_id,link_type,column):
   model_class=LINKABLE_MODELS.get(link_type.lower())

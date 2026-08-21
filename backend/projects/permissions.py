@@ -2,7 +2,7 @@
 from rest_framework.permissions import BasePermission,SAFE_METHODS
 from django.shortcuts import get_object_or_404
 from repositories.models import Repository
-from projects.models import Project, Card
+from projects.models import Project, Column
 
 
 
@@ -38,7 +38,7 @@ class IsRepoOwnerForCard(BasePermission):
   def has_permission(self, request, view):
     if request.method in SAFE_METHODS:
       return True
-    column=get_object_or_404(Card,id=view.kwargs["column_id"])
+    column=get_object_or_404(Column,id=view.kwargs["column_id"])
     return column.project.repository.owner==request.user
 
   def has_object_permission(self, request, view, obj):

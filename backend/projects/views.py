@@ -30,8 +30,8 @@ class ColumnListCreateView(ListCreateAPIView):
 
   def perform_create(self, serializer):
     project=get_object_or_404(Project,id=self.kwargs["project_id"])
-    Column=create_column(name=serializer.validated_data["name"],position=serializer.validated_data["position"],project=project)
-    serializer.instance=Column
+    column=create_column(name=serializer.validated_data["name"],position=serializer.validated_data["position"],project=project)
+    serializer.instance=column
 
 class ColumnDetailView(RetrieveUpdateDestroyAPIView):
   serializer_class=ColumnSerializer

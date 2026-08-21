@@ -29,5 +29,5 @@ class CardSerializer(serializers.ModelSerializer):
   def get_linked_type(self,obj):
     return obj.content_type.model
   def get_linked_title(self,obj):
-    return obj.content_type_title
+    return obj.content_object.title
   
