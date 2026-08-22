@@ -3,7 +3,6 @@ from repositories.models import Repository
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 
-# Create your models here.
 
 
 class Project(models.Model):

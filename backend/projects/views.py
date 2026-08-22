@@ -13,7 +13,7 @@ class ProjectListCreateView(ListCreateAPIView):
   permission_classes=[IsRepoOwnerForProject]
 
   def get_queryset(self):
-    return Project.objects.filter(repository_id=self.kwargs["repo_id"])
+    return Project.objects.filter(repository_id=self.kwargs["repo_id"]).select_related('repository__owner')
 
   def perform_create(self, serializer):
     repository=get_object_or_404(Repository,id=self.kwargs["repo_id"])

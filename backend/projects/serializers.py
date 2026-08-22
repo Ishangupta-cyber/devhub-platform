@@ -2,10 +2,12 @@ from rest_framework import serializers
 from .models import Card,Project,Column
 
 class ProjectSerializer(serializers.ModelSerializer):
-  class Meta:
-    model=Project
-    fields=["id","name","created_at"]
-    read_only_fields=["id","created_at"]
+    repository_owner = serializers.ReadOnlyField(source='repository.owner.username')
+
+    class Meta:
+        model = Project
+        fields = ['id', 'name', 'created_at', 'repository_owner']
+        read_only_fields = ['id', 'created_at']
 
 class ColumnSerializer(serializers.ModelSerializer):
   class Meta:
@@ -14,7 +16,7 @@ class ColumnSerializer(serializers.ModelSerializer):
     read_only_fields=["id"]
 
 class CardSerializer(serializers.ModelSerializer):
-  # writing_only
+  # writing_only 
   link_type=serializers.CharField(write_only=True,required=False)
   link_id=serializers.IntegerField(write_only=True,required=False)
   # reading_only
