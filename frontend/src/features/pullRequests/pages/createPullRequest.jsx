@@ -1,7 +1,8 @@
 import { useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
+import { createPullRequest as createPullRequestApi } from "../api/pullRequests"
 
-export default function createPullRequest() {
+export default function CreatePullRequest() {
 
     const [error,setError]=useState(null)
     const [loading,setLoading]=useState(false)
@@ -19,10 +20,10 @@ export default function createPullRequest() {
       setError("")
       setLoading(true)
       try {
-       const {data}= createPullRequest(repoId,formData)
+       const {data}= await createPullRequestApi(repoId,formData)
         navigate(`/repositories/${repoId}/pull-requests/${data.id}`)
       } catch (error) {
-        setError(error.reponse?.data?.detail || "Failed to fetch Comments")
+        setError(error.response?.data?.detail || "Failed to create pull request")
       }
       finally{
         setLoading(false)

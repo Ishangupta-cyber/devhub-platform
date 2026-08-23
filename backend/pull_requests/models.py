@@ -12,7 +12,7 @@ class Pull_Request(models.Model):
   ]
 
   ALLOWED_TRANSITIONS={
-    "draft":["riview"],
+    "draft":["review"],
     "review":["draft","approved"],
     "approved":["merged"],
     "merged":[],

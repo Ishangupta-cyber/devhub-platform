@@ -73,22 +73,18 @@ function Profile() {
     <div className="min-h-screen bg-[#0B0F1A] p-6">
       <div className="max-w-md mx-auto bg-[#12162A] border border-[#242B45] rounded-xl p-8">
         
-        {/* Name */}
         <h1 className="font-display text-2xl font-semibold text-[#E4E7F2]">
           {profileData ? profileData.full_name : "Loading..."}
         </h1>
 
-        {/* Username */}
         <p className="text-sm text-[#8B90A8] mb-1">
           {profileData?`@${profileData.username}`: "Loading..."}
         </p>
 
-        {/* Bio */}
         <p className="text-sm text-[#8B90A8] mb-4">
           {profileData ? profileData.bio : "Loading..."}
         </p>
 
-        {/* Followers / Following row */}
         <div className="flex gap-4 text-sm text-[#8B90A8] mb-4">
           <Link to={`/profile/${username}/followers`} className="hover:text-[#E4E7F2] transition-colors">
           <span className="text-[#E4E7F2] font-medium">{profileData?.followers_count || 0}</span> followers
@@ -98,7 +94,6 @@ function Profile() {
           </Link>
         </div>
 
-        {/* Follow/Unfollow button */}
        { !isOwnProfile && (
           <button
             className="w-full bg-[#7C6FF5] hover:bg-[#6C5FE0] disabled:opacity-50 text-white text-sm font-medium rounded-md py-2.5 transition-colors"

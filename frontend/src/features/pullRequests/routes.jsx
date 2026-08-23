@@ -1,25 +1,23 @@
 import { Route } from "react-router-dom"
 import PullRequests from "./pages/PullRequests"
-import pullRequestDetail from "./pages/pullRequestDetail"
+import PullRequestDetail from "./pages/pullRequestDetail"
 import ProtectedRoute from "../../components/ProtectedRoute"
-import createPullRequest from "./pages/createPullRequest"
+import CreatePullRequest from "./pages/createPullRequest"
 
-
-
-const PullRequests=(
+const pullRequestRoutes = (
   <>
     <Route path="/repositories/:repoId/pull-requests" element={<PullRequests/>} />
-    <Route path="/repositoires/:repoId/pull-requests/:id" element={<pullRequestDetail/>}   />
+    <Route path="/repositories/:repoId/pull-requests/:id" element={<PullRequestDetail/>}   />
     <Route
       path="/repositories/:repoId/pull-requests/new"
       element={
         <ProtectedRoute>
-          <createPullRequest/>
+          <CreatePullRequest/>
         </ProtectedRoute>
       }
     />
-  
+
   </>
 )
 
-export default PullRequests
+export default pullRequestRoutes

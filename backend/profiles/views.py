@@ -20,8 +20,8 @@ class ProfileDetailView(RetrieveAPIView):
 
   def get_queryset(self):
     return User.objects.annotate(
-            followers_count=Count('followers'),
-            following_count=Count('following')
+            followers_count=Count('followers', distinct=True),
+            following_count=Count('following', distinct=True)
         )
 
 
@@ -72,7 +72,7 @@ class FollowersListView(ListAPIView):
    def get_queryset(self):
       target_user=get_object_or_404(User,username=self.kwargs['username'])
       follower_ids=Follow.objects.filter(following=target_user).values_list("follower_id",flat=True)
-      return User.objects.filter(id__in=follower_ids).annotate(followers_count=Count('followers'),following_count=Count("following"))
+      return User.objects.filter(id__in=follower_ids).annotate(followers_count=Count('followers', distinct=True),following_count=Count("following", distinct=True))
 
 
 class FollowingListView(ListAPIView):
@@ -82,7 +82,7 @@ class FollowingListView(ListAPIView):
    def get_queryset(self):
       target_user=get_object_or_404(User,username=self.kwargs['username'])
       following_ids=Follow.objects.filter(follower=target_user).values_list("following_id",flat=True)
-      return User.objects.filter(id__in=following_ids).annotate(followers_count=Count('followers'),following_count=Count("following"))
+      return User.objects.filter(id__in=following_ids).annotate(followers_count=Count('followers', distinct=True),following_count=Count("following", distinct=True))
 
 
 class UserRepositoriesListView(ListAPIView):

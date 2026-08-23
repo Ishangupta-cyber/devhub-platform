@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
+import { Link, useParams } from "react-router-dom"
 import { useAuth } from "../../../hooks/useAuth"
 import { getRepository } from "../../repositories/api/repositories"
-import { updatePullRequest } from "../api/pullRequests"
+import { getPullRequest, updatePullRequest } from "../api/pullRequests"
 
 const VALID_TRANSITIONS = {
   draft: ['review'],
@@ -18,7 +18,7 @@ const TRANSITION_LABELS = {
   draft: 'Move back to Draft',
 }
 
-export default function pullRequestDetail() {
+export default function PullRequestDetail() {
 
   const [error,setError]=useState("")
   const {repoId,id}=useParams()
@@ -54,7 +54,7 @@ export default function pullRequestDetail() {
     setError("")
     setUpdating(true)
     try{
-      const {data}=updatePullRequest(repoId,id,{status:newStatus})
+      const {data}=await updatePullRequest(repoId,id,{status:newStatus})
       setPr(data)
     }
     catch(err){

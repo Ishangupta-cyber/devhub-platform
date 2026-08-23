@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Pull_Request
 
-class PullRequestSerializer(serializers.Serializer):
+class PullRequestSerializer(serializers.ModelSerializer):
   created_by=serializers.CharField(source="created_by.username",read_only=True)
   repository=serializers.CharField(source="repository.name",read_only=True)
 

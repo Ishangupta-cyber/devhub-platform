@@ -28,7 +28,7 @@ function Login() {
     catch (err) {
       if (!err.response) {
         console.log(err)
-    setError(err.response.data?.detail||'Cannot reach server. Check your connection or CORS settings.')
+    setError('Cannot reach server. Check your connection or CORS settings.')
       }
      else {
     setError(err.response.data?.detail || 'Login failed. Check your credentials.')

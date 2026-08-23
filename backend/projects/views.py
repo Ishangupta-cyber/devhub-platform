@@ -1,8 +1,10 @@
 from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIView
+from rest_framework.exceptions import ValidationError
 from .serializers import ColumnSerializer,ProjectSerializer,CardSerializer
 from .permissions import IsRepoOwnerForProject,IsRepoOwnerForColumn,IsRepoOwnerForCard
 from .models import Project,Column,Card
 from repositories.models import Repository
+from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from .services import create_project,create_column,add_card
 # Create your views here.
@@ -49,11 +51,14 @@ class CardListCreateView(ListCreateAPIView):
 
   def perform_create(self, serializer):
     column=get_object_or_404(Column,id=self.kwargs["column_id"])
-    card=add_card(
-      column=column,
-      link_type=serializer.validated_data["link_type"],
-      link_id=serializer.validated_data["link_id"]
-    )
+    try:
+      card=add_card(
+        column=column,
+        link_type=serializer.validated_data["link_type"],
+        link_id=serializer.validated_data["link_id"]
+      )
+    except IntegrityError:
+      raise ValidationError({"non_field_errors": ["This item is already added to the board."]})
     serializer.instance=card
 
 

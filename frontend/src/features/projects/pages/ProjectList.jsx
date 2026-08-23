@@ -17,17 +17,17 @@ export default function ProjectList() {
   const [repo,setRepo]=useState(null)
 
   useEffect(()=>{
-    try{
+    const fetchProjects=async()=>{
       setLoading(true)
-      const fetchProjects=async()=>{
-      const[proRes,repoRes]=await Promise.all([listProjects(repoId),getRepository(repoId)])
+      try{
+        const[proRes,repoRes]=await Promise.all([listProjects(repoId),getRepository(repoId)])
         const data=Array.isArray(proRes?.data)?proRes.data:proRes.data.results
-        setProjects(proRes)
-        setRepo(repoRes)
-    }
-    }
-    finally{
-      setLoading(false)
+        setProjects(data)
+        setRepo(repoRes.data)
+      }
+      finally{
+        setLoading(false)
+      }
     }
     fetchProjects()
   },[repoId])
@@ -75,7 +75,7 @@ export default function ProjectList() {
             to={`/repositories/${repoId}/projects/${project.id}`}
               key={project.id}  
               state={{ project }}
-              className="bg-[#12162A] border border-[#242B45] rounded-md px-4 py-3"
+              className="block bg-[#12162A] border border-[#242B45] rounded-md px-4 py-3 hover:border-[#7C6FF5] transition-colors"
             >
               <p className="text-sm text-[#E4E7F2] font-medium">{project.name}</p>
             </Link>

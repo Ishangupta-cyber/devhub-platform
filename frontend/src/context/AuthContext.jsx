@@ -59,7 +59,6 @@ export function AuthProvider({children}){
   }
 
   const value = { user, isAuthenticated: !!accessToken, loading, login, logout }
-  console.log("AuthContext value:", value) // Debugging line
   return (
     <AuthContext.Provider value={value}> {children} </AuthContext.Provider>
   )

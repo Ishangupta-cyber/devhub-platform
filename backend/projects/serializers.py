@@ -27,6 +27,7 @@ class CardSerializer(serializers.ModelSerializer):
   class Meta:
     model=Card
     fields=['id', 'column', 'position', 'link_type', 'link_id', 'linked_type', 'linked_id', 'linked_title', 'added_at']
+    read_only_fields=['id', 'column', 'position', 'added_at']
 
   def get_linked_type(self,obj):
     return obj.content_type.model

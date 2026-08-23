@@ -1,5 +1,5 @@
 import { Route } from 'react-router-dom'
-import ProjectsList from './pages/ProjectsList.jsx'
+import ProjectsList from './pages/ProjectList.jsx'
 import ProjectBoard from './pages/ProjectBoard.jsx'
 
 const projectRoutes = (

@@ -19,3 +19,4 @@ class ProfileSerializer(serializers.ModelSerializer):
       return False
     return Follow.objects.filter(follower=request.user,following=obj).exists()
 
+ 

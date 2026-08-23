@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { listPullRequests } from '../api/pullRequests'
 
 export default function PullRequests() {
@@ -31,7 +31,7 @@ export default function PullRequests() {
       }
     }
       fetchPrs()
-    },repoId)
+    },[repoId])
 
     if (loading) return <div className="min-h-screen bg-[#0B0F1A]" />
 
