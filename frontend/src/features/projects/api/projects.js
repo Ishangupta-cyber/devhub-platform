@@ -15,3 +15,4 @@ export const deleteColumn = (projectId, columnId) => apiClient.delete(`/projects
 export const listCards = (columnId) => apiClient.get(`/projects/columns/${columnId}/cards/`)
 export const createCard=(columnId,data)=>apiClient.post(`/projects/columns/${columnId}/cards/`,data)
 
+export const moveCard = (currentColumnId, cardId, data) => apiClient.patch(`/projects/columns/${currentColumnId}/cards/${cardId}/`, data)
