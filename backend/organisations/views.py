@@ -3,7 +3,6 @@ from rest_framework.generics import ListCreateAPIView
 from .serializers import OrganisationSerializer,MembershipSerializer,AddMemberSerializer
 from .models import Organisation,Membership
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from rest_framework.mixins import ListModelMixin
 from .services import create_organisation,add_member
 from .permissions import IsManagerOrReadOnly
 from django.shortcuts import get_object_or_404
@@ -12,7 +11,7 @@ from authentication.models import User
 # Create your views here.
 
 
-class OrganisationListCreateView(ListCreateAPIView,ListModelMixin):
+class OrganisationListCreateView(ListCreateAPIView):
   serializer_class=OrganisationSerializer
   queryset=Organisation.objects.all()
   permission_classes=[IsAuthenticatedOrReadOnly]

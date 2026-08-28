@@ -9,6 +9,8 @@ import repositoryRoutes from './features/repositories/routes.jsx'
 import issueRoutes from './features/issues/routes.jsx'
 import pullRequestRoutes from './features/pullRequests/routes.jsx'
 import ProjectRoutes from './features/projects/routes.jsx'
+import activityRoutes from './features/activity/routes.jsx'
+import organizationRoutes from './features/organizations/routes.jsx'
 
 const App = () => {
   return (
@@ -28,6 +30,8 @@ const App = () => {
         {issueRoutes}
         {pullRequestRoutes}
         {ProjectRoutes}
+        {activityRoutes}
+        {organizationRoutes}
       </Routes>
     </AuthProvider>
   )

@@ -10,10 +10,10 @@ class ActivitySerializer(serializers.ModelSerializer):
 
 
   class Meta:
-    models=Activity
+    model=Activity
     fields=["id","actor","verb","target_type","target_display","created_at"]
 
-  def target_type(self,obj):
+  def get_target_type(self,obj):
     return obj.content_type.model
 
   def get_target_display(self,obj):
