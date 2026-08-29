@@ -52,7 +52,8 @@ INSTALLED_APPS = [
      'pull_requests',
      'projects',
      'organisations',
-    "activity"
+    "activity",
+    "wiki"
 ]
 
 MIDDLEWARE = [

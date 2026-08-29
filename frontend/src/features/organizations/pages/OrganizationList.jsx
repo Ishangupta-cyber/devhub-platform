@@ -41,7 +41,7 @@ export default function OrganizationList() {
     setError('')
     setCreating(true)
     try {
-      const {data}=createOrganization(formData)
+      const {data}=await createOrganization(formData)
       setOrgs([...orgs,data])
       setFormData({name:"",description:""})
       
@@ -78,7 +78,7 @@ export default function OrganizationList() {
             key={org.id}
             to={`/organizations/${org.id}`}
             state={{ org }}
-            className="2block bg-[#12162A] border border-[#242B45] rounded-md px-4 py-3 hover:border-[#7C6FF5] transition-colors"
+            className="block bg-[#12162A] border border-[#242B45] rounded-md px-4 py-3 hover:border-[#7C6FF5] transition-colors"
             >  
              <p className="text-sm text-[#E4E7F2] font-medium">{org.name}</p>
             {org.description && <p className="text-xs text-[#8B90A8] mt-1">{org.description}</p>}

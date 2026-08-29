@@ -57,7 +57,7 @@ export default function OrganizationDetail() {
     setError('')
     setAdding(true)
     try {
-      const {data}=addMember(orgId,newMember)
+      const {data}=await addMember(orgId,newMember)
        setMembers([...members, data])
       setNewMember({ username: '', role: 'member' })
       

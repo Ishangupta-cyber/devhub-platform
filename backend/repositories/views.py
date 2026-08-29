@@ -16,7 +16,8 @@ class RepositoryListCreateView(generics.ListCreateAPIView):
     repo=create_repository(
       owner=self.request.user,
       name=serializer.validated_data['name'],
-      description=serializer.validated_data.get('description','')
+      description=serializer.validated_data.get('description',''),
+      organization_id=serializer.validated_data.get('organization_id')
     )
     serializer.instance=repo
 
