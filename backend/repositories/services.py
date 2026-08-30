@@ -13,4 +13,4 @@ def create_repository(owner,name,organization_id=None,description=""):
        raise PermissionDenied("You must be an owner or admin of this organization.")
 
   return Repository.objects.create(
-        owner=owner, name=name, description=description, organisation=organization)
+        owner=owner, name=name, description=description, organization=organization)

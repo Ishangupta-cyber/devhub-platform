@@ -45,6 +45,9 @@ function Navbar() {
     <Link to="/organizations" className="text-sm text-[#8B90A8] hover:text-[#E4E7F2] mr-4">
       Organizations
     </Link>
+    <Link to={`/repositories/${id}/wiki`} className="block mt-2 text-sm text-[#7C6FF5] hover:underline">
+      View wiki →
+    </Link>
 
     </nav>
   )

@@ -8,8 +8,12 @@ class OrganisationSerializer(serializers.ModelSerializer):
     fields=["id","name","description","created_at"]
     read_only_fields=["id","created_at"]
 
-class MembershipSerializer(serializers.ModelSerializer):
+class OrganizationMiniSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Organisation
+        fields = ['id', 'name']
 
+class MembershipSerializer(serializers.ModelSerializer):
   username=serializers.CharField(source="user.username",read_only=True)
   class Meta:
     model=Membership

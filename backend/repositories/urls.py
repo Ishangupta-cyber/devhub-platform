@@ -12,7 +12,7 @@ urlpatterns = [
 
 
 urlpatterns+=[
-  path('<int:repo_id>/issues/', IssueCreateView.as_view(), name='issue-list-create'),
+    path('<int:repo_id>/issues/', IssueCreateView.as_view(), name='issue-list-create'),
     path('<int:repo_id>/issues/<int:pk>/', IssueDetailView.as_view(), name='issue-detail'),
 ]
 
@@ -26,6 +26,6 @@ urlpatterns += [
 ]
 
 urlpatterns+=[
-     path('<int:repo_id>/wiki/', WikiPageListCreateView.as_view(), name='wiki-list-create'),
+    path('<int:repo_id>/wiki/', WikiPageListCreateView.as_view(), name='wiki-list-create'),
     path('<int:repo_id>/wiki/<slug:slug>/', WikiPageDetailView.as_view(), name='wiki-detail'),
 ]

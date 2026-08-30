@@ -11,6 +11,7 @@ import pullRequestRoutes from './features/pullRequests/routes.jsx'
 import ProjectRoutes from './features/projects/routes.jsx'
 import activityRoutes from './features/activity/routes.jsx'
 import organizationRoutes from './features/organizations/routes.jsx'
+import wikiRoutes from './features/wiki/routes.jsx'
 
 const App = () => {
   return (
@@ -32,6 +33,7 @@ const App = () => {
         {ProjectRoutes}
         {activityRoutes}
         {organizationRoutes}
+        {wikiRoutes}
       </Routes>
     </AuthProvider>
   )

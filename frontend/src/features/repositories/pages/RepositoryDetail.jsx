@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../../../hooks/useAuth'
 import { deleteRepository, getRepository, updateRepository } from '../api/repositories'
+import useCanManageRepo from '../../../hooks/useCanManageRepo'
 
 export default function RepositoryDetail() {
   const [error,setError]=useState("")
@@ -13,6 +14,8 @@ export default function RepositoryDetail() {
   const {user}=useAuth()
    const [editing, setEditing] = useState(false)
 
+
+   const {canManage,checking}=useCanManageRepo(repo)
 
   useEffect(()=>{
     const getRepo=async()=>{
@@ -34,7 +37,6 @@ export default function RepositoryDetail() {
 
   },[id])
   
-  const isOwner=user?.username===repo?.owner
 
   const handleChange=(e)=>{
       setFormData({...formData,[e.target.name]:e.target.value})
@@ -102,7 +104,7 @@ export default function RepositoryDetail() {
             <p className="text-sm text-[#8B90A8] mt-2">{repo.description}</p>
             <p className="text-xs text-[#8B90A8] mt-2">@{repo.owner}</p>
 
-            {isOwner && (
+            {!checking && canManage && (
               <div className="flex gap-3 mt-4">
                 <button onClick={() => setEditing(true)} className="text-sm text-[#7C6FF5] hover:underline">
                   Edit

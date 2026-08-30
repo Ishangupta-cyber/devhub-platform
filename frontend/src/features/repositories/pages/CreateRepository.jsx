@@ -1,6 +1,8 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createRepository } from '../api/repositories'
+import { useAuth } from '../../../hooks/useAuth'
+import { listMembers, listOrganizations } from '../../organizations/api/organisations'
 
 export default function CreateRepository() {
 
@@ -8,35 +10,65 @@ export default function CreateRepository() {
   const [loading,setLoading]=useState(false)
   const [formData,setFormData]=useState({name:"",description:""})
   const navigate=useNavigate()
+  const {user}=useAuth()
+  const [organizationId,setOrganizationId]=useState("")
+  const [myOrgs,setMyOrgs]=useState([])
 
-  const handleChange=(e)=>{
-    setFormData({...formData,[e.target.name]:e.target.value})
-  }
+  useEffect(()=>{
+    const fetchMyOrgs=async()=>{
+      if(!user) return
+      try {
+        const orgsRes=await listOrganizations()
+        const allOrgs=Array.isArray(orgsRes.data)? orgsRes.data : orgsRes.data.results
+        if(allOrgs.length===0) return 
+        const membersResults=await Promise.all(allOrgs.map((org)=>listMembers(org.id)))
+        const manageable=allOrgs.filter((org,index)=>{
+          const raw=membersResults[index].data
+          const members=Array.isArray(raw)?raw:raw.results
+          const mine=members.find((m)=>m.username===user.username)
+          return !!mine && ["owner","admin"].includes(mine.role)
 
-   const handleSubmit = async (e) => {
+        })
+        setMyOrgs(manageable)
+        
+      } catch (err) {
+        setMyOrgs([])
+      }
+    }
+    fetchMyOrgs()
+
+  },[user?.username])
+
+  const handleChange=(e)=>setFormData({ ...formData, [e.target.name]: e.target.value })
+
+  const handleSubmit=async(e)=>{
     e.preventDefault()
     setError('')
     setLoading(true)
     try {
-      const { data } = await createRepository(formData)
+      const payload={...formData}
+      if(organizationId){
+        payload.organization_id=Number(organizationId)
+
+      }
+      const {data}=await createRepository(payload)
       navigate(`/repositories/${data.id}`)
+      
     } catch (err) {
       const resData = err.response?.data
-      if (resData) {
-        const firstKey = Object.keys(resData)[0]
-        const firstMsg = Array.isArray(resData[firstKey]) ? resData[firstKey][0] : resData[firstKey]
-        setError(firstMsg)
-      } else {
-        setError('Failed to create repository.')
-      }
-    } finally {
+      const firstKey = resData && Object.keys(resData)[0]
+      setError(firstKey ? (Array.isArray(resData[firstKey]) ? resData[firstKey][0] : resData[firstKey]) : 'Failed to create repository.')
+    }
+    finally{
       setLoading(false)
     }
   }
-  
+
+
+
 
   
-  return (
+   return (
     <div className="min-h-screen bg-[#0B0F1A] p-6">
       <div className="max-w-md mx-auto bg-[#12162A] border border-[#242B45] rounded-xl p-8">
         <h1 className="font-display text-2xl text-[#E4E7F2] mb-6">New repository</h1>
@@ -60,6 +92,7 @@ export default function CreateRepository() {
               placeholder="my-project"
             />
           </div>
+
           <div>
             <label className="block text-xs font-mono text-[#8B90A8] mb-1.5">description</label>
             <textarea
@@ -70,6 +103,21 @@ export default function CreateRepository() {
               className="w-full bg-[#0F1424] border border-[#242B45] rounded-md px-3 py-2.5 text-[#E4E7F2] text-sm outline-none focus:border-[#7C6FF5]"
             />
           </div>
+
+          <div>
+            <label className="block text-xs font-mono text-[#8B90A8] mb-1.5">owner</label>
+            <select
+              value={organizationId}
+              onChange={(e) => setOrganizationId(e.target.value)}
+              className="w-full bg-[#0F1424] border border-[#242B45] rounded-md px-3 py-2.5 text-[#E4E7F2] text-sm outline-none focus:border-[#7C6FF5]"
+            >
+              <option value="">Personal (@{user?.username})</option>
+              {myOrgs.map((org) => (
+                <option key={org.id} value={org.id}>{org.name}</option>
+              ))}
+            </select>
+          </div>
+
           <button
             type="submit"
             disabled={loading}

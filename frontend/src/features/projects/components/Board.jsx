@@ -1,11 +1,12 @@
 import React from 'react'
-import { DragDropContext } from 'react-beautiful-dnd'
+import { DragDropContext } from '@hello-pangea/dnd'
 import Column from './Column'
 
 export default function Board({
   columns,
   cardsByColumn,
   isRepoOwner,
+  checking,
   onDragEnd,
   editingColumnId,
   editName,
@@ -54,7 +55,7 @@ export default function Board({
           />
         ))}
 
-        {isRepoOwner && (
+        {!checking && isRepoOwner && (
           <form onSubmit={onAddColumn} className="w-64 shrink-0">
             <input
               type="text"

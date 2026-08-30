@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom"
 import { useAuth } from "../../../hooks/useAuth"
 import { getRepository } from "../../repositories/api/repositories"
 import { getPullRequest, updatePullRequest } from "../api/pullRequests"
+import useCanManageRepo from "../../../hooks/useCanManageRepo"
 
 const VALID_TRANSITIONS = {
   draft: ['review'],
@@ -25,9 +26,8 @@ export default function PullRequestDetail() {
   const [updating,setUpdating]=useState(false)
   const [pr,setPr]=useState(null)
   const [repo,setRepo]=useState(null)
-  const {user}=useAuth()
   const [loading,setLoading]=useState(true)
-
+  
   useEffect(()=>{
     setLoading(true)
     setError("")
@@ -38,8 +38,8 @@ export default function PullRequestDetail() {
         setRepo(RepoRes.data)
       }
       catch(err){
-          setPr(null)
-      setError(err.response?.data?.non_field_errors?.[0] || 'Something went Wrong.')
+        setPr(null)
+        setError(err.response?.data?.non_field_errors?.[0] || 'Something went Wrong.')
       }
       finally{
         setLoading(false)
@@ -47,8 +47,8 @@ export default function PullRequestDetail() {
     }
     fetchpr()
   },[repoId,id])
-
-  const isRepoOwner=repo?.owner === user?.username
+  
+  const {canManage,checking}=useCanManageRepo(repo)
 
   const handleTransition = async(newStatus)=>{
     setError("")
@@ -93,7 +93,7 @@ export default function PullRequestDetail() {
             {pr.status}
           </span>
 
-          {isRepoOwner && availableActions?.map((nextStatus) => (
+          {!checking && canManage && availableActions?.map((nextStatus) => (
             <button
               key={nextStatus}
               onClick={() => handleTransition(nextStatus)}

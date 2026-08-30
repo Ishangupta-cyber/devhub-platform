@@ -4,6 +4,7 @@ import { useAuth } from '../../../hooks/useAuth'
 import { getIssue, updateIssue } from '../api/issues'
 import { getRepository } from '../../repositories/api/repositories'
 import CommentSection from '../../comments/components/CommentSection'
+import useCanManageRepo from '../../../hooks/useCanManageRepo'
 
 export default function IssueDetail() {
   const [error,setError]=useState("")
@@ -12,6 +13,7 @@ export default function IssueDetail() {
   const [issue,setIssue]=useState(null)
   const [repo,setRepo]=useState(null)
   const {user}=useAuth()
+  const {canManage,checking}=useCanManageRepo(repo)
 
   useEffect(()=>{
     setLoading(true)
@@ -26,7 +28,6 @@ export default function IssueDetail() {
     
   },[repoId,issueId])
 
-  const isRepoOwner = user?.username === repo?.owner
 
     const handleClose = async () => {
     setError('')
@@ -69,7 +70,7 @@ export default function IssueDetail() {
         <p className="text-sm text-[#8B90A8] mt-2">by @{issue.created_by}</p>
         <p className="text-sm text-[#E4E7F2] mt-4">{issue.description}</p>
 
-        {isRepoOwner && issue.status === 'open' && (
+        {!checking && canManage && issue.status === 'open' && (
           <button
             onClick={handleClose}
             className="mt-6 text-sm text-[#F4A9B5] hover:underline"
@@ -78,7 +79,7 @@ export default function IssueDetail() {
           </button>
         )}
 
-        <CommentSection issueId={issueId} isRepoOwner={isRepoOwner} currentUsername={user?.username}  />
+        <CommentSection issueId={issueId} isRepoOwner={canManage} currentUsername={user?.username}  />
 
       </div>
     </div>

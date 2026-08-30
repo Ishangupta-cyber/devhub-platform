@@ -5,6 +5,8 @@ import { useAuth } from '../../../hooks/useAuth'
 import { listIssues } from '../../issues/api/issues'
 import { listPullRequests } from '../../pullRequests/api/pullRequests'
 import Board from '../components/Board'
+import { getRepository } from '../../repositories/api/repositories'
+import useCanManageRepo from '../../../hooks/useCanManageRepo'
 
 export default function ProjectBoard() {
   const location = useLocation()
@@ -29,6 +31,8 @@ export default function ProjectBoard() {
   const [selectedType, setSelectedType] = useState("issue")
   const [cardError, setCardError] = useState("")
   const [selectedItemId, setSelectedItemId] = useState("")
+
+  const [repo,setRepo]=useState(null)
 
   const onDragEnd = async (result) => {
     const { source, destination } = result
@@ -84,9 +88,11 @@ export default function ProjectBoard() {
       setLoading(true)
       if (!location.state?.project) {
         const projectsRes = await listProjects(repoId)
+        const repoRes=await getRepository(repoId)
         const projectData = Array.isArray(projectsRes.data) ? projectsRes.data : projectsRes.data.results
         const found = projectData.find((p) => p.id === Number(projectId))
         setProject(found || null)
+        setRepo(repoRes.data)
       }
       const columnRes = await listColumns(projectId)
       const columnData = Array.isArray(columnRes.data) ? columnRes.data : columnRes.data.results
@@ -107,7 +113,7 @@ export default function ProjectBoard() {
     fetchBoard()
   }, [repoId, projectId])
 
-  const isRepoOwner = user?.username === project?.repository_owner
+  const {canManage,checking}=useCanManageRepo(repo)
 
   const handleAddColumn = async (e) => {
     e.preventDefault()
@@ -221,7 +227,8 @@ export default function ProjectBoard() {
         <Board
           columns={columns}
           cardsByColumn={cardsByColumn}
-          isRepoOwner={isRepoOwner}
+          isRepoOwner={canManage}
+          checking={checking}
           onDragEnd={onDragEnd}
           editingColumnId={editingColumnId}
           editName={editName}

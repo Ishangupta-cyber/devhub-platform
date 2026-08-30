@@ -1,5 +1,5 @@
 import React from 'react'
-import { Draggable } from 'react-beautiful-dnd'
+import { Draggable } from '@hello-pangea/dnd'
 
 const LINK_TYPE_STYLE = {
   issue: 'bg-[#1B3A2A] text-[#A9F4C0]',
