@@ -1,15 +1,25 @@
+import datetime
 import random
 
+from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from django.utils import timezone
 
 from authentication.models import User
 from profiles.models import Follow
+from repositories.models import Repository
 from repositories.services import create_repository
+from issues.models import Issue
 from issues.services import create_issue
+from pull_requests.models import Pull_Request
 from pull_requests.services import create_pull_request
+from comments.models import Comments
 from comments.services import create_comment
 from projects.services import create_project, create_column, add_card
+from wiki.services import create_wiki_page
+from activity.models import Activity
+from notifications.models import Notification
 
 
 DEMO_PASSWORD = "Demo@1234"
@@ -87,6 +97,9 @@ class Command(BaseCommand):
             self._seed_comments(issues, prs, users_by_username, all_usernames)
             self._seed_projects(repos, issues, prs)
             self._seed_follows(users_by_username)
+            self._seed_wiki_pages(repos)
+            self._backfill_activity()
+            self._seed_notifications()
 
         self.stdout.write(self.style.SUCCESS("\nDemo data seeded successfully.\n"))
         self.stdout.write("Login credentials:")
@@ -235,3 +248,123 @@ class Command(BaseCommand):
                 if was_created:
                     created += 1
         self.stdout.write(f"Created {created} follow relationships.")
+
+    def _seed_wiki_pages(self, repos):
+        created = 0
+        for repo in repos:
+            if repo.wiki_pages.exists():
+                continue
+            pages = [
+                ("Home",
+                 f"# {repo.name}\n\n{repo.description}\n\n"
+                 f"Welcome to the **{repo.name}** wiki. Use the sidebar to find setup "
+                 f"instructions, architecture notes, and contribution guidelines."),
+                ("Getting Started",
+                 "# Getting Started\n\n"
+                 "1. Clone the repository: `git clone <url>`\n"
+                 "2. Install dependencies.\n"
+                 "3. Copy `.env.example` to `.env` and fill in the required values.\n"
+                 "4. Run the project locally and open a pull request for any changes.\n\n"
+                 f"Maintained by @{repo.owner.username}."),
+                ("Architecture",
+                 "# Architecture Overview\n\n"
+                 f"`{repo.name}` is organized around a small set of core modules. "
+                 "Check open issues and pull requests for ongoing design discussions "
+                 "before proposing large structural changes."),
+            ]
+            for title, content in pages:
+                create_wiki_page(title=title, repository=repo, created_by=repo.owner, content=content)
+                created += 1
+        self.stdout.write(f"Created {created} wiki pages.")
+
+    def _backfill_activity(self):
+        """Activity rows are normally queued to Celery via signals, but no worker
+        may have been running to consume them. Fill in any missing entries directly
+        so the activity feed reflects everything that already exists in the DB."""
+        repo_ct = ContentType.objects.get_for_model(Repository)
+        issue_ct = ContentType.objects.get_for_model(Issue)
+        user_ct = ContentType.objects.get_for_model(User)
+        now = timezone.now()
+
+        existing_repo_ids = set(
+            Activity.objects.filter(verb='created_repository', content_type=repo_ct)
+            .values_list('object_id', flat=True)
+        )
+        existing_issue_ids = set(
+            Activity.objects.filter(verb='created_issue', content_type=issue_ct)
+            .values_list('object_id', flat=True)
+        )
+        existing_follows = set(
+            Activity.objects.filter(verb='followed', content_type=user_ct)
+            .values_list('actor_id', 'object_id')
+        )
+
+        created = 0
+        for repo in Repository.objects.all():
+            if repo.id in existing_repo_ids:
+                continue
+            ts = min(repo.created_at + datetime.timedelta(minutes=random.randint(0, 5)), now)
+            activity = Activity.objects.create(
+                actor=repo.owner, verb='created_repository', content_type=repo_ct, object_id=repo.id
+            )
+            Activity.objects.filter(pk=activity.pk).update(created_at=ts)
+            created += 1
+
+        for issue in Issue.objects.all():
+            if issue.id in existing_issue_ids:
+                continue
+            ts = min(issue.created_at + datetime.timedelta(minutes=random.randint(0, 5)), now)
+            activity = Activity.objects.create(
+                actor=issue.created_by, verb='created_issue', content_type=issue_ct, object_id=issue.id
+            )
+            Activity.objects.filter(pk=activity.pk).update(created_at=ts)
+            created += 1
+
+        for follow in Follow.objects.all():
+            if (follow.follower_id, follow.following_id) in existing_follows:
+                continue
+            ts = min(follow.created_at + datetime.timedelta(minutes=random.randint(0, 5)), now)
+            activity = Activity.objects.create(
+                actor=follow.follower, verb='followed', content_type=user_ct, object_id=follow.following_id
+            )
+            Activity.objects.filter(pk=activity.pk).update(created_at=ts)
+            created += 1
+
+        self.stdout.write(f"Backfilled {created} activity feed entries.")
+
+    def _seed_notifications(self):
+        if Notification.objects.exists():
+            return
+
+        user_ct = ContentType.objects.get_for_model(User)
+        created = 0
+
+        for comment in Comments.objects.select_related('author').all():
+            target = comment.content_object
+            owner = getattr(target, 'created_by', None)
+            if owner is None or owner.id == comment.author_id:
+                continue
+            notif = Notification.objects.create(
+                recipient=owner,
+                actor=comment.author,
+                verb='commented',
+                content_type=comment.content_type,
+                object_id=comment.object_id,
+                is_read=random.random() < 0.4,
+            )
+            Notification.objects.filter(pk=notif.pk).update(created_at=comment.created_at)
+            created += 1
+
+        for follow in Follow.objects.all():
+            notif = Notification.objects.create(
+                recipient=follow.following,
+                actor=follow.follower,
+                verb='followed',
+                content_type=user_ct,
+                object_id=follow.follower_id,
+                is_read=random.random() < 0.4,
+            )
+            Notification.objects.filter(pk=notif.pk).update(created_at=follow.created_at)
+            created += 1
+
+        self.stdout.write(f"Created {created} notifications.")

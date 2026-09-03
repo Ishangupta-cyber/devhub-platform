@@ -124,6 +124,9 @@ export default function RepositoryDetail() {
             <Link to={`/repositories/${id}/projects`} className="block mt-2 text-sm text-[#7C6FF5] hover:underline">
               View projects →
             </Link>
+             <Link to={`/repositories/${id}/wiki`} className="block mt-2 text-sm text-[#7C6FF5] hover:underline">
+              View wiki →
+            </Link>
           </>
         )}
       </div>
