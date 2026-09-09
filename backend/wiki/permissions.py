@@ -6,7 +6,7 @@ from repositories.models import Repository
 
 
 class IsRepoManagerOrReadOnly(permissions.BasePermission):
-  def has_permission(self, request, view):
+  def has_permission(self, request, view):  
     if request.method in permissions.SAFE_METHODS:
       return True
     repository=get_object_or_404(Repository,id=view.kwargs["repo_id"])

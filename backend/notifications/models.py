@@ -3,13 +3,10 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 
-# Create your models here.
-
-
 
 class Notification(models.Model):
 
-  recipient=models.ForeignKey(to=settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name="notifications") #jisko jayega notification
+  recipient=models.ForeignKey(to=settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name="notifications") 
 
   actor=models.ForeignKey(to=settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name="notifications_sent")
 
@@ -24,5 +21,3 @@ class Notification(models.Model):
 
   class Meta:
     ordering=["-created_at"]
-
-
