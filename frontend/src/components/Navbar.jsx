@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import NotificationBell from '../features/notifications/components/NotificationBell'
+import SearchBox from '../features/search/components/SearchBox'
 
 function Navbar() {
   const { logout, user } = useAuth()
@@ -25,6 +26,8 @@ function Navbar() {
         <Link to="/change-password" className="text-sm text-[#8B90A8] hover:text-[#E4E7F2]">Password</Link>
 
         {user && <NotificationBell />}
+       
+        {user && <SearchBox />}
 
         {user && (
           <>
