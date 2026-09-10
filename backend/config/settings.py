@@ -56,7 +56,8 @@ INSTALLED_APPS = [
      'projects',
      'organisations',
     "activity",
-    "wiki"
+    "wiki",
+      'django.contrib.postgres',
 ]
 
 MIDDLEWARE = [
