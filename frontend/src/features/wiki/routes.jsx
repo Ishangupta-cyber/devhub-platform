@@ -1,12 +1,12 @@
-import { Route } from "react-router-dom";
-import WikiPages from "./pages/WikiPages";
-import WikiPageDetail from "./pages/WikiPageDetail";
+import { Route } from 'react-router-dom'
+import WikiPages from './pages/WikiPages.jsx'
+import WikiPageDetail from './pages/WikiPageDetail.jsx'
 
-
-const wikiRoutes=(
+// relative to /repositories/:repoId (see RepoLayout)
+const wikiRoutes = (
   <>
-  <Route element={<WikiPages/>} path="/repositories/:repoId/wiki"  />
-  <Route element={<WikiPageDetail/>} path="/repositories/:repoId/wiki/:slug"  />
+    <Route path="wiki" element={<WikiPages />} />
+    <Route path="wiki/:slug" element={<WikiPageDetail />} />
   </>
 )
 

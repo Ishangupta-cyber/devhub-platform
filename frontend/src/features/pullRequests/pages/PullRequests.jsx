@@ -45,9 +45,8 @@ export default function PullRequests() {
                 {error}
               </div>
         )}
-      <div className="max-w-2xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="font-display text-2xl text-fg">Pull Requests</h1>
+      <div className="max-w-5xl mx-auto">
+        <div className="flex justify-end mb-4">
           <Link to={`/repositories/${repoId}/pull-requests/new`} className="bg-accent hover:bg-accent-hover text-white text-sm font-medium rounded-md px-4 py-2">
             New pull request
           </Link>

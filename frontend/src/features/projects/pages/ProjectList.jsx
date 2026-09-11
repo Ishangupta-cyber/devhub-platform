@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { useAuth } from '../../../hooks/useAuth'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useOutletContext, useParams } from 'react-router-dom'
 import { createProject, listProjects } from '../api/projects'
-import { getRepository } from '../../repositories/api/repositories'
 
 export default function ProjectList() {
 
@@ -10,20 +8,18 @@ export default function ProjectList() {
   const [loading,setLoading]=useState(true)
   const [error,setError]=useState("")
   const [projects,setProjects]=useState([])
-  const {user}=useAuth()
   const {repoId}=useParams()
+  const {canManage}=useOutletContext()
   const [creating,setCreating]=useState(false)
   const [name,setName]=useState("")
-  const [repo,setRepo]=useState(null)
 
   useEffect(()=>{
     const fetchProjects=async()=>{
       setLoading(true)
       try{
-        const[proRes,repoRes]=await Promise.all([listProjects(repoId),getRepository(repoId)])
+        const proRes=await listProjects(repoId)
         const data=Array.isArray(proRes?.data)?proRes.data:proRes.data.results
         setProjects(data)
-        setRepo(repoRes.data)
       }
       finally{
         setLoading(false)
@@ -31,8 +27,6 @@ export default function ProjectList() {
     }
     fetchProjects()
   },[repoId])
-
-  const isRepoOwner=repo?.owner===user?.username
 
   const handleCreate=async(e)=>{
     e.preventDefault()
@@ -59,8 +53,7 @@ export default function ProjectList() {
 
   return (
     <div className="p-6">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="font-display text-2xl text-fg mb-6">Projects</h1>
+      <div className="max-w-5xl mx-auto">
 
         {error && (
           <div className="mb-4 px-3 py-2 rounded-md bg-danger-bg border border-danger-border text-danger text-sm">
@@ -82,7 +75,7 @@ export default function ProjectList() {
           ))}
         </div>
 
-        {isRepoOwner && (
+        {canManage && (
           <form onSubmit={handleCreate} className="flex gap-2">
             <input
               type="text"

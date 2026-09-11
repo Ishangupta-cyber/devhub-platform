@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
-import useCanManageRepo from '../../../hooks/useCanManageRepo'
+import { Link, useNavigate, useOutletContext, useParams } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
 import { deleteWikiPage, getWikiPage, updateWikiPage } from '../api/wiki'
-import { getRepository } from '../../repositories/api/repositories'
 
 export default function WikiPageDetail() {
 
@@ -11,10 +9,9 @@ export default function WikiPageDetail() {
   const [page,setPage]=useState(null)
   const {slug,repoId}=useParams()
   const navigate=useNavigate()
-  const [repo,setRepo]=useState(null)
+  const {canManage}=useOutletContext()
   const [error,setError]=useState("")
   const [saving,setSaving]=useState(false)
-  const {canManage,checking}=useCanManageRepo(repo)
   const [editing,setEditing]=useState(false)
   const [formData,setFormData]=useState({title:"",content:""})
 
@@ -22,9 +19,8 @@ export default function WikiPageDetail() {
     const fetchData=async()=>{
       setLoading(true)
       try {
-      const [pageRes,repoRes]=await Promise.all([getWikiPage(slug,repoId),getRepository(repoId)])
+      const pageRes=await getWikiPage(slug,repoId)
       setPage(pageRes.data)
-      setRepo(repoRes.data)
       setFormData({title:pageRes.data.title,content:pageRes.data.content})
         
       } 
@@ -112,7 +108,7 @@ export default function WikiPageDetail() {
           <>
             <div className="flex items-start justify-between mt-4">
               <h1 className="font-display text-2xl text-fg">{page.title}</h1>
-              {!checking && canManage && (
+              {canManage && (
                 <div className="flex gap-3 shrink-0 ml-4">
                   <button onClick={() => setEditing(true)} className="text-sm text-accent hover:underline">Edit</button>
                   <button onClick={handleDelete} className="text-sm text-danger hover:underline">Delete</button>

@@ -1,17 +1,13 @@
 import React, { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import useCanManageRepo from '../../../hooks/useCanManageRepo'
+import { Link, useOutletContext, useParams } from 'react-router-dom'
 import { createWikiPage, listWikiPages } from '../api/wiki'
-import { getRepository } from '../../repositories/api/repositories'
 
 export default function WikiPages() {
   const [error,setError]=useState("")
   const {repoId}=useParams()
   const [loading,setLoading]=useState(true)
   const [pages,setPages]=useState([])
-  const [repo,setRepo]=useState(null)
-
-  const {canManage,checking}=useCanManageRepo(repo)
+  const {canManage}=useOutletContext()
 
   const [formData,setFormData]=useState({title:"",content:""})
   const [creating,setCreating]=useState(false)
@@ -21,10 +17,9 @@ export default function WikiPages() {
     const fetchData=async()=>{
       setLoading(true)
       try {
-        const [pagesRes,repoRes]=await Promise.all([listWikiPages(repoId),getRepository(repoId)])
+        const pagesRes=await listWikiPages(repoId)
         const pagesData=Array.isArray(pagesRes.data)?pagesRes.data:pagesRes.data.results
         setPages(pagesData)
-        setRepo(repoRes.data)
         
       } catch (error) {
          setError('Failed to load wiki.')
@@ -63,14 +58,9 @@ export default function WikiPages() {
   if (loading) return <div className="p-6" />
    return (
     <div className="p-6">
-      <div className="max-w-2xl mx-auto">
-        <Link to={`/repositories/${repoId}`} className="text-xs text-muted hover:text-fg">
-          ← back to repository
-        </Link>
-
-        <div className="flex items-center justify-between mt-4 mb-6">
-          <h1 className="font-display text-2xl text-fg">Wiki</h1>
-          {!checking && canManage && !showForm && (
+      <div className="max-w-5xl mx-auto">
+        <div className="flex items-center justify-end mb-4">
+          {canManage && !showForm && (
             <button
               onClick={() => setShowForm(true)}
               className="bg-accent hover:bg-accent-hover text-white text-sm font-medium rounded-md px-4 py-2"

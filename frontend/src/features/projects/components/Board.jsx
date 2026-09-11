@@ -6,7 +6,6 @@ export default function Board({
   columns,
   cardsByColumn,
   isRepoOwner,
-  checking,
   onDragEnd,
   editingColumnId,
   editName,
@@ -55,7 +54,7 @@ export default function Board({
           />
         ))}
 
-        {!checking && isRepoOwner && (
+        {isRepoOwner && (
           <form onSubmit={onAddColumn} className="w-64 shrink-0">
             <input
               type="text"

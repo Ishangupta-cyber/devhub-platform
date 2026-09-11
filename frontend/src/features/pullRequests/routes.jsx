@@ -3,11 +3,12 @@ import PullRequests from './pages/PullRequests.jsx'
 import PullRequestDetail from './pages/pullRequestDetail.jsx'
 import CreatePullRequest from './pages/createPullRequest.jsx'
 
+// relative to /repositories/:repoId (see RepoLayout)
 const pullRequestRoutes = (
   <>
-    <Route path="/repositories/:repoId/pull-requests" element={<PullRequests />} />
-    <Route path="/repositories/:repoId/pull-requests/new" element={<CreatePullRequest />} />
-    <Route path="/repositories/:repoId/pull-requests/:id" element={<PullRequestDetail />} />
+    <Route path="pull-requests" element={<PullRequests />} />
+    <Route path="pull-requests/new" element={<CreatePullRequest />} />
+    <Route path="pull-requests/:id" element={<PullRequestDetail />} />
   </>
 )
 

@@ -1,6 +1,13 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useDebounce } from '../../../hooks/useDebounce'
+import { search } from '../api/search'
+import {
+  CATEGORY_LABELS,
+  getResultLink,
+  getResultTitle,
+  getResultSubtitle,
+} from '../utils/searchHelpers'
 
 const TABS = [
   { value: '', label: 'All' },

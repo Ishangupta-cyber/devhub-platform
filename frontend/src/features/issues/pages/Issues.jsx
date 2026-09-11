@@ -27,9 +27,8 @@ export default function Issues() {
    if (loading) return <div className="p-6" />
     return (
     <div className="p-6">
-      <div className="max-w-2xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="font-display text-2xl text-fg">Issues</h1>
+      <div className="max-w-5xl mx-auto">
+        <div className="flex justify-end mb-4">
           <Link to={`/repositories/${repoId}/issues/new`} className="bg-accent hover:bg-accent-hover text-white text-sm font-medium rounded-md px-4 py-2">
             New issue
           </Link>

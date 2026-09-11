@@ -1,72 +1,53 @@
-import React, { useEffect, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
-import { useAuth } from '../../../hooks/useAuth'
-import { deleteRepository, getRepository, updateRepository } from '../api/repositories'
-import useCanManageRepo from '../../../hooks/useCanManageRepo'
+import { useState } from 'react'
+import { useNavigate, useOutletContext, useParams } from 'react-router-dom'
+import { deleteRepository, updateRepository } from '../api/repositories'
 
 export default function RepositoryDetail() {
-  const [error,setError]=useState("")
-  const {id}=useParams()
-  const navigate=useNavigate()
-  const [repo,setRepo]=useState(null)
-  const [loading,setLoading]=useState(true)
-  const [formData, setFormData] = useState({ name: '', description: '' })
-  const {user}=useAuth()
-   const [editing, setEditing] = useState(false)
+  const { repoId } = useParams()
+  const navigate = useNavigate()
+  const { repo, canManage, onRepoChange } = useOutletContext()
 
+  const [error, setError] = useState('')
+  const [editing, setEditing] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [formData, setFormData] = useState({
+    name: repo.name,
+    description: repo.description || '',
+  })
 
-   const {canManage,checking}=useCanManageRepo(repo)
-
-  useEffect(()=>{
-    const getRepo=async()=>{
-      try{
-        setLoading(true)
-      const res=await getRepository(id)
-      setRepo(res?.data)
-      setFormData({ name: res.data.name, description: res.data.description })
-      }
-      catch(err){
-        setRepo(null)
-      }
-      finally{
-        setLoading(false)
-      }
-    }
-
-    getRepo()
-
-  },[id])
-  
-
-  const handleChange=(e)=>{
-      setFormData({...formData,[e.target.name]:e.target.value})
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  const handleUpdate=async(e)=>{
+  const handleUpdate = async (e) => {
     e.preventDefault()
-    setError("")
-    try{
-        const { data } = await updateRepository(id, formData)
-      setRepo(data)
+    setError('')
+    setSaving(true)
+    try {
+      const { data } = await updateRepository(repoId, formData)
+      onRepoChange(data)
       setEditing(false)
-    }
-    catch(err){
+    } catch (err) {
       setError(err.response?.data?.detail || 'Update failed.')
+    } finally {
+      setSaving(false)
     }
   }
 
-    const handleDelete=async()=>{
-       if (!window.confirm('Delete this repository? This cannot be undone.')) return
-    await deleteRepository(id)
-    navigate('/repositories')
+  const handleDelete = async () => {
+    if (!window.confirm(`Delete ${repo.name}? This cannot be undone.`)) return
+    try {
+      await deleteRepository(repoId)
+      navigate('/repositories')
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Delete failed.')
     }
+  }
 
-   if (loading) return <div className="p-6" />
-  if (!repo) return <div className="p-6 text-fg text-center pt-20">Repository not found.</div>
-
- return (
+  return (
     <div className="p-6">
-      <div className="max-w-2xl mx-auto bg-surface border border-border rounded-xl p-8">
+      <div className="max-w-5xl mx-auto">
+
         {error && (
           <div className="mb-4 px-3 py-2 rounded-md bg-danger-bg border border-danger-border text-danger text-sm">
             {error}
@@ -74,62 +55,81 @@ export default function RepositoryDetail() {
         )}
 
         {editing ? (
-          <form onSubmit={handleUpdate} className="space-y-4">
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full bg-subtle border border-border rounded-md px-3 py-2.5 text-fg text-sm font-mono outline-none focus:border-accent"
-            />
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              rows={3}
-              className="w-full bg-subtle border border-border rounded-md px-3 py-2.5 text-fg text-sm outline-none focus:border-accent"
-            />
+          <form onSubmit={handleUpdate} className="bg-surface border border-border rounded-lg p-6 max-w-xl space-y-4">
+            <div>
+              <label className="block text-xs font-mono text-muted mb-1.5">name</label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                className="w-full bg-subtle border border-border rounded-md px-3 py-2.5 text-fg text-sm font-mono outline-none focus:border-accent"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-mono text-muted mb-1.5">description</label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                rows={3}
+                className="w-full bg-subtle border border-border rounded-md px-3 py-2.5 text-fg text-sm outline-none focus:border-accent"
+              />
+            </div>
             <div className="flex gap-2">
-              <button type="submit" className="bg-accent hover:bg-accent-hover text-white text-sm font-medium rounded-md px-4 py-2">
-                Save
+              <button
+                type="submit"
+                disabled={saving}
+                className="bg-accent hover:bg-accent-hover disabled:opacity-50 text-white text-sm font-medium rounded-md px-4 py-2"
+              >
+                {saving ? 'Saving…' : 'Save'}
               </button>
-              <button type="button" onClick={() => setEditing(false)} className="text-sm text-muted">
+              <button
+                type="button"
+                onClick={() => {
+                  setFormData({ name: repo.name, description: repo.description || '' })
+                  setEditing(false)
+                }}
+                className="border border-border bg-surface hover:bg-subtle text-fg text-sm font-medium rounded-md px-4 py-2"
+              >
                 Cancel
               </button>
             </div>
           </form>
         ) : (
-          <>
-            <h1 className="font-display text-2xl text-fg">{repo.name}</h1>
-            <p className="text-sm text-muted mt-2">{repo.description}</p>
-            <p className="text-xs text-muted mt-2">@{repo.owner}</p>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <Detail label="Owner" value={`@${repo.owner}`} />
+            <Detail label="Organization" value={repo.organization?.name || 'Personal'} />
+            <Detail label="Created" value={new Date(repo.created_at).toLocaleDateString()} />
+          </div>
+        )}
 
-            {!checking && canManage && (
-              <div className="flex gap-3 mt-4">
-                <button onClick={() => setEditing(true)} className="text-sm text-accent hover:underline">
-                  Edit
-                </button>
-                <button onClick={handleDelete} className="text-sm text-danger hover:underline">
-                  Delete
-                </button>
-              </div>
-            )}
-
-            <Link to={`/repositories/${id}/issues`} className="block mt-6 text-sm text-accent hover:underline">
-              View issues →
-            </Link>
-            <Link to={`/repositories/${id}/pull-requests`} className="block mt-2 text-sm text-accent hover:underline">
-              View pull requests →
-            </Link>
-            <Link to={`/repositories/${id}/projects`} className="block mt-2 text-sm text-accent hover:underline">
-              View projects →
-            </Link>
-             <Link to={`/repositories/${id}/wiki`} className="block mt-2 text-sm text-accent hover:underline">
-              View wiki →
-            </Link>
-          </>
+        {!editing && canManage && (
+          <div className="flex gap-3 mt-6">
+            <button
+              onClick={() => setEditing(true)}
+              className="border border-border bg-surface hover:bg-subtle text-fg text-sm font-medium rounded-md px-4 py-2 transition-colors"
+            >
+              Edit repository
+            </button>
+            <button
+              onClick={handleDelete}
+              className="text-danger hover:bg-danger-bg text-sm font-medium rounded-md px-4 py-2 transition-colors"
+            >
+              Delete
+            </button>
+          </div>
         )}
       </div>
+    </div>
+  )
+}
+
+function Detail({ label, value }) {
+  return (
+    <div className="bg-surface border border-border rounded-lg px-4 py-3">
+      <p className="text-xs text-muted">{label}</p>
+      <p className="text-sm text-fg mt-0.5 truncate">{value}</p>
     </div>
   )
 }

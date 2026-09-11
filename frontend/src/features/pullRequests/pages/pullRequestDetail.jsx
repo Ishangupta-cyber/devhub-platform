@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react"
-import { Link, useParams } from "react-router-dom"
-import { useAuth } from "../../../hooks/useAuth"
-import { getRepository } from "../../repositories/api/repositories"
+import { Link, useOutletContext, useParams } from "react-router-dom"
 import { getPullRequest, updatePullRequest } from "../api/pullRequests"
-import useCanManageRepo from "../../../hooks/useCanManageRepo"
 
 const VALID_TRANSITIONS = {
   draft: ['review'],
@@ -25,7 +22,7 @@ export default function PullRequestDetail() {
   const {repoId,id}=useParams()
   const [updating,setUpdating]=useState(false)
   const [pr,setPr]=useState(null)
-  const [repo,setRepo]=useState(null)
+  const {canManage}=useOutletContext()
   const [loading,setLoading]=useState(true)
   
   useEffect(()=>{
@@ -33,9 +30,8 @@ export default function PullRequestDetail() {
     setError("")
     const fetchpr=async()=>{
       try{
-        const [RepoRes,PrRes]=await Promise.all([getRepository(repoId),getPullRequest(repoId,id)])
+        const PrRes=await getPullRequest(repoId,id)
         setPr(PrRes.data)
-        setRepo(RepoRes.data)
       }
       catch(err){
         setPr(null)
@@ -47,8 +43,6 @@ export default function PullRequestDetail() {
     }
     fetchpr()
   },[repoId,id])
-  
-  const {canManage,checking}=useCanManageRepo(repo)
 
   const handleTransition = async(newStatus)=>{
     setError("")
@@ -93,7 +87,7 @@ export default function PullRequestDetail() {
             {pr.status}
           </span>
 
-          {!checking && canManage && availableActions?.map((nextStatus) => (
+          {canManage && availableActions?.map((nextStatus) => (
             <button
               key={nextStatus}
               onClick={() => handleTransition(nextStatus)}

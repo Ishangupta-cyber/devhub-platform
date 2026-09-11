@@ -1,27 +1,23 @@
 import React, { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useOutletContext, useParams } from 'react-router-dom'
 import { useAuth } from '../../../hooks/useAuth'
 import { getIssue, updateIssue } from '../api/issues'
-import { getRepository } from '../../repositories/api/repositories'
 import CommentSection from '../../comments/components/CommentSection'
-import useCanManageRepo from '../../../hooks/useCanManageRepo'
 
 export default function IssueDetail() {
   const [error,setError]=useState("")
   const [loading,setLoading]=useState(true)
   const {repoId,issueId}=useParams()
   const [issue,setIssue]=useState(null)
-  const [repo,setRepo]=useState(null)
   const {user}=useAuth()
-  const {canManage,checking}=useCanManageRepo(repo)
+  const {canManage}=useOutletContext()
 
   useEffect(()=>{
     setLoading(true)
     
-      Promise.all([getIssue(repoId,issueId),getRepository(repoId)])
-      .then(([issueRes,repoRes])=>{
+      getIssue(repoId,issueId)
+      .then((issueRes)=>{
         setIssue(issueRes.data)
-        setRepo(repoRes.data)
       })
       .catch(()=>setIssue(null))
       .finally(()=>setLoading(false))
@@ -70,7 +66,7 @@ export default function IssueDetail() {
         <p className="text-sm text-muted mt-2">by @{issue.created_by}</p>
         <p className="text-sm text-fg mt-4">{issue.description}</p>
 
-        {!checking && canManage && issue.status === 'open' && (
+        {canManage && issue.status === 'open' && (
           <button
             onClick={handleClose}
             className="mt-6 text-sm text-danger hover:underline"

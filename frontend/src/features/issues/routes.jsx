@@ -3,11 +3,12 @@ import Issues from './pages/Issues.jsx'
 import CreateIssue from './pages/CreateIssue.jsx'
 import IssueDetail from './pages/IssueDetail.jsx'
 
+// relative to /repositories/:repoId (see RepoLayout)
 const issueRoutes = (
   <>
-    <Route path="/repositories/:repoId/issues" element={<Issues />} />
-    <Route path="/repositories/:repoId/issues/new" element={<CreateIssue />} />
-    <Route path="/repositories/:repoId/issues/:issueId" element={<IssueDetail />} />
+    <Route path="issues" element={<Issues />} />
+    <Route path="issues/new" element={<CreateIssue />} />
+    <Route path="issues/:issueId" element={<IssueDetail />} />
   </>
 )
 

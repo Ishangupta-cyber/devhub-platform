@@ -1,6 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useDebounce } from '../../../hooks/useDebounce'
+import { search } from '../api/search'
+import {
+  CATEGORY_LABELS,
+  getResultLink,
+  getResultTitle,
+  getResultSubtitle,
+} from '../utils/searchHelpers'
 
 export default function SearchBox() {
 
@@ -29,7 +36,10 @@ export default function SearchBox() {
          const res = await search(debouncedQuery)
         if (!cancelled) setResults(res.data)
       } catch (err) {
-          if (!cancelled) setResults(null)
+        if (!cancelled) {
+          console.error('Search failed:', err)
+          setResults(null)
+        }
       }
       finally{
         if (!cancelled) setLoading(false)

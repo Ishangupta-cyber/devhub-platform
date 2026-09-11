@@ -1,6 +1,8 @@
 import { Route, Routes, Link } from 'react-router-dom'
 import AppLayout from './components/AppLayout.jsx'
 import Home from './pages/Home.jsx'
+import RepoLayout from './features/repositories/components/RepoLayout.jsx'
+import RepositoryDetail from './features/repositories/pages/RepositoryDetail.jsx'
 import authRoutes from './features/auth/routes.jsx'
 import profileRoutes from './features/profile/routes.jsx'
 import repositoryRoutes from './features/repositories/routes.jsx'
@@ -36,14 +38,20 @@ const App = () => {
         <Route path="/" element={<Home />} />
         {profileRoutes}
         {repositoryRoutes}
-        {issueRoutes}
-        {pullRequestRoutes}
-        {projectRoutes}
         {activityRoutes}
         {organizationRoutes}
-        {wikiRoutes}
         {notificationRoutes}
         {searchRoutes}
+
+        {/* one repo: shared header + tabs, children render into its outlet */}
+        <Route path="/repositories/:repoId" element={<RepoLayout />}>
+          <Route index element={<RepositoryDetail />} />
+          {issueRoutes}
+          {pullRequestRoutes}
+          {projectRoutes}
+          {wikiRoutes}
+        </Route>
+
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
