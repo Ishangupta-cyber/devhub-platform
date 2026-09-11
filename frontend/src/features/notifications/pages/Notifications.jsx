@@ -12,21 +12,21 @@ export default function Notifications() {
 
   const {notifications,unreadCount,loading,markAsRead}=useNotifications()
 
-  if (loading) return <div className="min-h-screen bg-[#0B0F1A]" />
+  if (loading) return <div className="p-6" />
 
   return (
-    <div className="min-h-screen bg-[#0B0F1A] p-6">
+    <div className="p-6">
       <div className="max-w-2xl mx-auto">
 
         <div className="flex items-center justify-between mb-6">
-          <h1 className="font-display text-2xl text-[#E4E7F2]">Notifications</h1>
+          <h1 className="font-display text-2xl text-fg">Notifications</h1>
           {unreadCount > 0 && (
-            <span className="text-sm text-[#8B90A8]">{unreadCount} unread</span>
+            <span className="text-sm text-muted">{unreadCount} unread</span>
           )}
         </div>
 
         {notifications.length === 0 && (
-          <p className="text-sm text-[#8B90A8]">
+          <p className="text-sm text-muted">
             Nothing here yet. You'll see updates about your repositories and issues.
           </p>
         )}
@@ -37,15 +37,15 @@ export default function Notifications() {
               key={notification.id}
               className={`border rounded-md px-4 py-3 flex items-start justify-between gap-4 ${
                 notification.is_read
-                  ? 'bg-[#12162A] border-[#242B45]'
-                  : 'bg-[#161B33] border-[#3A3F63]'
+                  ? 'bg-surface border-border'
+                  : 'bg-subtle border-border'
               }`}
             >
               <div>
-                <p className="text-sm text-[#E4E7F2]">
+                <p className="text-sm text-fg">
                   <Link
                     to={`/profile/${notification.actor}`}
-                    className="text-[#7C6FF5] hover:underline font-medium"
+                    className="text-accent hover:underline font-medium"
                   >
                     @{notification.actor}
                   </Link>
@@ -53,7 +53,7 @@ export default function Notifications() {
                   {VERB_LABELS[notification.verb] || notification.verb}
                 </p>
                 {notification.created_at && (
-                  <p className="text-xs text-[#8B90A8] mt-1">
+                  <p className="text-xs text-muted mt-1">
                     {new Date(notification.created_at).toLocaleString()}
                   </p>
                 )}
@@ -62,7 +62,7 @@ export default function Notifications() {
               {!notification.is_read && (
                 <button
                   onClick={() => markAsRead(notification.id)}
-                  className="text-xs text-[#8B90A8] hover:text-[#E4E7F2] transition-colors shrink-0"
+                  className="text-xs text-muted hover:text-fg transition-colors shrink-0"
                 >
                   Mark as read
                 </button>

@@ -32,7 +32,7 @@ class Repository(models.Model):
             return True
         if self.organization:
             return Membership.objects.filter(
-                organization=self.organization,
+                organisation=self.organization,
                 user=user,
                 role__in=['owner', 'admin']
             ).exists()

@@ -61,14 +61,14 @@ export default function RepositoryDetail() {
     navigate('/repositories')
     }
 
-   if (loading) return <div className="min-h-screen bg-[#0B0F1A]" />
-  if (!repo) return <div className="min-h-screen bg-[#0B0F1A] text-[#E4E7F2] text-center pt-20">Repository not found.</div>
+   if (loading) return <div className="p-6" />
+  if (!repo) return <div className="p-6 text-fg text-center pt-20">Repository not found.</div>
 
  return (
-    <div className="min-h-screen bg-[#0B0F1A] p-6">
-      <div className="max-w-2xl mx-auto bg-[#12162A] border border-[#242B45] rounded-xl p-8">
+    <div className="p-6">
+      <div className="max-w-2xl mx-auto bg-surface border border-border rounded-xl p-8">
         {error && (
-          <div className="mb-4 px-3 py-2 rounded-md bg-[#3A1B23] border border-[#5C2430] text-[#F4A9B5] text-sm">
+          <div className="mb-4 px-3 py-2 rounded-md bg-danger-bg border border-danger-border text-danger text-sm">
             {error}
           </div>
         )}
@@ -80,51 +80,51 @@ export default function RepositoryDetail() {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="w-full bg-[#0F1424] border border-[#242B45] rounded-md px-3 py-2.5 text-[#E4E7F2] text-sm font-mono outline-none focus:border-[#7C6FF5]"
+              className="w-full bg-subtle border border-border rounded-md px-3 py-2.5 text-fg text-sm font-mono outline-none focus:border-accent"
             />
             <textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
               rows={3}
-              className="w-full bg-[#0F1424] border border-[#242B45] rounded-md px-3 py-2.5 text-[#E4E7F2] text-sm outline-none focus:border-[#7C6FF5]"
+              className="w-full bg-subtle border border-border rounded-md px-3 py-2.5 text-fg text-sm outline-none focus:border-accent"
             />
             <div className="flex gap-2">
-              <button type="submit" className="bg-[#7C6FF5] hover:bg-[#6C5FE0] text-white text-sm font-medium rounded-md px-4 py-2">
+              <button type="submit" className="bg-accent hover:bg-accent-hover text-white text-sm font-medium rounded-md px-4 py-2">
                 Save
               </button>
-              <button type="button" onClick={() => setEditing(false)} className="text-sm text-[#8B90A8]">
+              <button type="button" onClick={() => setEditing(false)} className="text-sm text-muted">
                 Cancel
               </button>
             </div>
           </form>
         ) : (
           <>
-            <h1 className="font-display text-2xl text-[#E4E7F2]">{repo.name}</h1>
-            <p className="text-sm text-[#8B90A8] mt-2">{repo.description}</p>
-            <p className="text-xs text-[#8B90A8] mt-2">@{repo.owner}</p>
+            <h1 className="font-display text-2xl text-fg">{repo.name}</h1>
+            <p className="text-sm text-muted mt-2">{repo.description}</p>
+            <p className="text-xs text-muted mt-2">@{repo.owner}</p>
 
             {!checking && canManage && (
               <div className="flex gap-3 mt-4">
-                <button onClick={() => setEditing(true)} className="text-sm text-[#7C6FF5] hover:underline">
+                <button onClick={() => setEditing(true)} className="text-sm text-accent hover:underline">
                   Edit
                 </button>
-                <button onClick={handleDelete} className="text-sm text-[#F4A9B5] hover:underline">
+                <button onClick={handleDelete} className="text-sm text-danger hover:underline">
                   Delete
                 </button>
               </div>
             )}
 
-            <Link to={`/repositories/${id}/issues`} className="block mt-6 text-sm text-[#7C6FF5] hover:underline">
+            <Link to={`/repositories/${id}/issues`} className="block mt-6 text-sm text-accent hover:underline">
               View issues →
             </Link>
-            <Link to={`/repositories/${id}/pull-requests`} className="block mt-2 text-sm text-[#7C6FF5] hover:underline">
+            <Link to={`/repositories/${id}/pull-requests`} className="block mt-2 text-sm text-accent hover:underline">
               View pull requests →
             </Link>
-            <Link to={`/repositories/${id}/projects`} className="block mt-2 text-sm text-[#7C6FF5] hover:underline">
+            <Link to={`/repositories/${id}/projects`} className="block mt-2 text-sm text-accent hover:underline">
               View projects →
             </Link>
-             <Link to={`/repositories/${id}/wiki`} className="block mt-2 text-sm text-[#7C6FF5] hover:underline">
+             <Link to={`/repositories/${id}/wiki`} className="block mt-2 text-sm text-accent hover:underline">
               View wiki →
             </Link>
           </>

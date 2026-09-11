@@ -55,43 +55,43 @@ function NotificationBell() {
         onClick={() => setOpen(!open)}
         aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
         aria-expanded={open}
-        className="relative text-sm text-[#8B90A8] hover:text-[#E4E7F2] transition-colors"
+        className="relative text-sm text-muted hover:text-fg transition-colors"
       >
         🔔
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-2 bg-[#7C6FF5] text-white text-[10px] font-medium rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center">
+          <span className="absolute -top-1 -right-2 bg-accent text-white text-[10px] font-medium rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-80 bg-[#12162A] border border-[#242B45] rounded-md shadow-2xl z-50 max-h-96 overflow-y-auto">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-[#242B45]">
-            <p className="font-mono text-xs text-[#8B90A8]">notifications</p>
+        <div className="absolute right-0 mt-2 w-80 bg-surface border border-border rounded-md shadow-2xl z-50 max-h-96 overflow-y-auto">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+            <p className="font-mono text-xs text-muted">notifications</p>
             <span
-              className={`w-2 h-2 rounded-full ${connected ? 'bg-[#27C93F]' : 'bg-[#8B90A8]'}`}
+              className={`w-2 h-2 rounded-full ${connected ? 'bg-[#27C93F]' : 'bg-muted'}`}
               title={connected ? 'Live' : 'Offline'}
             />
           </div>
 
           {notifications.length === 0 ? (
-            <p className="text-sm text-[#8B90A8] px-4 py-6 text-center">Nothing yet.</p>
+            <p className="text-sm text-muted px-4 py-6 text-center">Nothing yet.</p>
           ) : (
             notifications.map((n) => (
               <button
                 key={n.id}
                 onClick={() => !n.is_read && markAsRead(n.id)}
-                className={`w-full text-left px-4 py-3 border-b border-[#242B45] last:border-b-0 hover:bg-[#0F1424] transition-colors ${
-                  !n.is_read ? 'bg-[#161B33]' : ''
+                className={`w-full text-left px-4 py-3 border-b border-border last:border-b-0 hover:bg-subtle transition-colors ${
+                  !n.is_read ? 'bg-subtle' : ''
                 }`}
               >
-                <p className="text-sm text-[#E4E7F2]">
-                  <span className="text-[#7C6FF5] font-medium">@{n.actor}</span>
+                <p className="text-sm text-fg">
+                  <span className="text-accent font-medium">@{n.actor}</span>
                   {' '}
                   {VERB_TEXT[n.verb] || n.verb}
                 </p>
-                <p className="text-xs text-[#8B90A8] mt-1">{timeAgo(n.created_at)}</p>
+                <p className="text-xs text-muted mt-1">{timeAgo(n.created_at)}</p>
               </button>
             ))
           )}
@@ -99,7 +99,7 @@ function NotificationBell() {
           <Link
             to="/notifications"
             onClick={() => setOpen(false)}
-            className="block px-4 py-2 text-center text-xs text-[#8B90A8] hover:text-[#E4E7F2] border-t border-[#242B45] transition-colors"
+            className="block px-4 py-2 text-center text-xs text-muted hover:text-fg border-t border-border transition-colors"
           >
             View all
           </Link>

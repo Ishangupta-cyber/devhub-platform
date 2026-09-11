@@ -2,7 +2,6 @@ import { useEffect, useState } from "react"
 import {getProfile,followUser,unfollowUser} from "../api/profile"
 import { Link, useParams } from "react-router-dom"
 import { useAuth } from "../../../hooks/useAuth"
-import Navbar from "../../../components/Navbar"
 
 function Profile() {
   const [profileData,setProfileData]=useState(null)
@@ -59,44 +58,39 @@ function Profile() {
   }
 
 
-  if (loading) return <div className="min-h-screen bg-[#0B0F1A]" />
+  if (loading) return <div className="p-6" />
   if (!profileData) return (
-    <>
-      <Navbar/>
-      <div className="min-h-screen bg-[#0B0F1A] text-[#E4E7F2] text-center pt-20">User not found.</div>
-    </>
+    <div className="p-6 text-fg text-center pt-20">User not found.</div>
   )
   const isOwnProfile = currentUser && currentUser.username === username
   return (
-    <>
-    <Navbar/>
-    <div className="min-h-screen bg-[#0B0F1A] p-6">
-      <div className="max-w-md mx-auto bg-[#12162A] border border-[#242B45] rounded-xl p-8">
+    <div className="p-6">
+      <div className="max-w-md mx-auto bg-surface border border-border rounded-xl p-8">
         
-        <h1 className="font-display text-2xl font-semibold text-[#E4E7F2]">
+        <h1 className="font-display text-2xl font-semibold text-fg">
           {profileData ? profileData.full_name : "Loading..."}
         </h1>
 
-        <p className="text-sm text-[#8B90A8] mb-1">
+        <p className="text-sm text-muted mb-1">
           {profileData?`@${profileData.username}`: "Loading..."}
         </p>
 
-        <p className="text-sm text-[#8B90A8] mb-4">
+        <p className="text-sm text-muted mb-4">
           {profileData ? profileData.bio : "Loading..."}
         </p>
 
-        <div className="flex gap-4 text-sm text-[#8B90A8] mb-4">
-          <Link to={`/profile/${username}/followers`} className="hover:text-[#E4E7F2] transition-colors">
-          <span className="text-[#E4E7F2] font-medium">{profileData?.followers_count || 0}</span> followers
+        <div className="flex gap-4 text-sm text-muted mb-4">
+          <Link to={`/profile/${username}/followers`} className="hover:text-fg transition-colors">
+          <span className="text-fg font-medium">{profileData?.followers_count || 0}</span> followers
           </Link>
-          <Link to={`/profile/${username}/following`} className="hover:text-[#E4E7F2] transition-colors">
-            <span className="text-[#E4E7F2] font-medium">{profileData?.following_count || 0}</span> following
+          <Link to={`/profile/${username}/following`} className="hover:text-fg transition-colors">
+            <span className="text-fg font-medium">{profileData?.following_count || 0}</span> following
           </Link>
         </div>
 
        { !isOwnProfile && (
           <button
-            className="w-full bg-[#7C6FF5] hover:bg-[#6C5FE0] disabled:opacity-50 text-white text-sm font-medium rounded-md py-2.5 transition-colors"
+            className="w-full bg-accent hover:bg-accent-hover disabled:opacity-50 text-white text-sm font-medium rounded-md py-2.5 transition-colors"
             disabled={followLoading}
             onClick={handleFollowToggle}
           >
@@ -106,7 +100,6 @@ function Profile() {
 
       </div>
     </div>
-    </>
   )
 }
 

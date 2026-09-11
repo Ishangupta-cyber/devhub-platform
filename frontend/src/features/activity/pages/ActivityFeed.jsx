@@ -32,20 +32,20 @@ export default function ActivityFeed() {
 
 
 
- if (loading) return <div className="min-h-screen bg-[#0B0F1A]" />
+ if (loading) return <div className="p-6" />
   return (
-    <div className="min-h-screen bg-[#0B0F1A] p-6">
+    <div className="p-6">
       <div className="max-w-2xl mx-auto">
-        <h1 className="font-display text-2xl text-[#E4E7F2] mb-6">Activity</h1>
+        <h1 className="font-display text-2xl text-fg mb-6">Activity</h1>
 
         {error && (
-          <div className="mb-4 px-3 py-2 rounded-md bg-[#3A1B23] border border-[#5C2430] text-[#F4A9B5] text-sm">
+          <div className="mb-4 px-3 py-2 rounded-md bg-danger-bg border border-danger-border text-danger text-sm">
             {error}
           </div>
         )}
 
         {activities.length === 0 && !error && (
-          <p className="text-sm text-[#8B90A8]">
+          <p className="text-sm text-muted">
             Nothing here yet. Follow some people to see their activity.
           </p>
         )}
@@ -54,19 +54,19 @@ export default function ActivityFeed() {
           {activities.map((activity) => (
             <div
               key={activity.id}
-              className="bg-[#12162A] border border-[#242B45] rounded-md px-4 py-3"
+              className="bg-surface border border-border rounded-md px-4 py-3"
             >
-              <p className="text-sm text-[#E4E7F2]">
+              <p className="text-sm text-fg">
                 <Link
                   to={`/profile/${activity.actor}`}
-                  className="text-[#7C6FF5] hover:underline font-medium"
+                  className="text-accent hover:underline font-medium"
                 >
                   @{activity.actor}
                 </Link>
                 {' '}
                 {VERB_LABELS[activity.verb] || activity.verb}
                 {' '}
-                <span className="font-mono text-[#8B90A8]">{activity.target_display}</span>
+                <span className="font-mono text-muted">{activity.target_display}</span>
               </p>
             </div>
           ))}

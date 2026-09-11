@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.shortcuts import render
 from rest_framework import generics,permissions
 from .models import Repository
@@ -8,9 +9,18 @@ from .services import create_repository
 # Create your views here.
 
 class RepositoryListCreateView(generics.ListCreateAPIView):
-  queryset=Repository.objects.all()
   serializer_class=RepositorySerializer
-  permission_classes=[permissions.IsAuthenticatedOrReadOnly]
+  permission_classes=[permissions.IsAuthenticated]
+
+  def get_queryset(self):
+    """Repositories the current user owns, plus those of orgs they belong to."""
+    user=self.request.user
+    return (
+      Repository.objects
+      .filter(Q(owner=user) | Q(organization__memberships__user=user))
+      .select_related('owner','organization')
+      .distinct()
+    )
 
   def perform_create(self, serializer):
     repo=create_repository(

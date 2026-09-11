@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import useCanManageRepo from '../../../hooks/useCanManageRepo'
-import { createWikiPage, deleteWikiPage, getWikiPage, updateWikiPage } from '../api/wiki'
+import ReactMarkdown from 'react-markdown'
+import { deleteWikiPage, getWikiPage, updateWikiPage } from '../api/wiki'
 import { getRepository } from '../../repositories/api/repositories'
 
 export default function WikiPageDetail() {
@@ -66,18 +67,18 @@ export default function WikiPageDetail() {
     }
   }
 
-  if (loading) return <div className="min-h-screen bg-[#0B0F1A]" />
-  if (!page) return <div className="min-h-screen bg-[#0B0F1A] text-[#E4E7F2] text-center pt-20">Page not found.</div>
+  if (loading) return <div className="p-6" />
+  if (!page) return <div className="p-6 text-fg text-center pt-20">Page not found.</div>
 
   return (
-    <div className="min-h-screen bg-[#0B0F1A] p-6">
+    <div className="p-6">
       <div className="max-w-2xl mx-auto">
-        <Link to={`/repositories/${repoId}/wiki`} className="text-xs text-[#8B90A8] hover:text-[#E4E7F2]">
+        <Link to={`/repositories/${repoId}/wiki`} className="text-xs text-muted hover:text-fg">
           ← back to wiki
         </Link>
 
         {error && (
-          <div className="mt-4 px-3 py-2 rounded-md bg-[#3A1B23] border border-[#5C2430] text-[#F4A9B5] text-sm">
+          <div className="mt-4 px-3 py-2 rounded-md bg-danger-bg border border-danger-border text-danger text-sm">
             {error}
           </div>
         )}
@@ -89,20 +90,20 @@ export default function WikiPageDetail() {
               name="title"
               value={formData.title}
               onChange={handleChange}
-              className="w-full bg-[#0F1424] border border-[#242B45] rounded-md px-3 py-2 text-[#E4E7F2] text-sm outline-none focus:border-[#7C6FF5]"
+              className="w-full bg-subtle border border-border rounded-md px-3 py-2 text-fg text-sm outline-none focus:border-accent"
             />
             <textarea
               name="content"
               value={formData.content}
               onChange={handleChange}
               rows={16}
-              className="w-full bg-[#0F1424] border border-[#242B45] rounded-md px-3 py-2 text-[#E4E7F2] text-sm font-mono outline-none focus:border-[#7C6FF5]"
+              className="w-full bg-subtle border border-border rounded-md px-3 py-2 text-fg text-sm font-mono outline-none focus:border-accent"
             />
             <div className="flex gap-3">
-              <button type="submit" disabled={saving} className="text-sm text-[#7C6FF5] hover:underline disabled:opacity-50">
+              <button type="submit" disabled={saving} className="text-sm text-accent hover:underline disabled:opacity-50">
                 {saving ? 'Saving…' : 'Save'}
               </button>
-              <button type="button" onClick={() => setEditing(false)} className="text-sm text-[#8B90A8] hover:underline">
+              <button type="button" onClick={() => setEditing(false)} className="text-sm text-muted hover:underline">
                 Cancel
               </button>
             </div>
@@ -110,18 +111,18 @@ export default function WikiPageDetail() {
         ) : (
           <>
             <div className="flex items-start justify-between mt-4">
-              <h1 className="font-display text-2xl text-[#E4E7F2]">{page.title}</h1>
+              <h1 className="font-display text-2xl text-fg">{page.title}</h1>
               {!checking && canManage && (
                 <div className="flex gap-3 shrink-0 ml-4">
-                  <button onClick={() => setEditing(true)} className="text-sm text-[#7C6FF5] hover:underline">Edit</button>
-                  <button onClick={handleDelete} className="text-sm text-[#F4A9B5] hover:underline">Delete</button>
+                  <button onClick={() => setEditing(true)} className="text-sm text-accent hover:underline">Edit</button>
+                  <button onClick={handleDelete} className="text-sm text-danger hover:underline">Delete</button>
                 </div>
               )}
             </div>
 
-            <p className="text-xs text-[#8B90A8] mt-1 mb-6">by @{page.created_by}</p>
+            <p className="text-xs text-muted mt-1 mb-6">by @{page.created_by}</p>
 
-            <div className="prose-wiki text-sm text-[#E4E7F2] space-y-3">
+            <div className="prose-wiki text-sm text-fg space-y-3">
               <ReactMarkdown>{page.content}</ReactMarkdown>
             </div>
           </>

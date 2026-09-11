@@ -62,12 +62,12 @@ export default function Board({
               value={newColumnName}
               onChange={(e) => onNewColumnNameChange(e.target.value)}
               placeholder="New column name"
-              className="w-full bg-[#0F1424] border border-[#242B45] rounded-md px-3 py-2 text-[#E4E7F2] text-sm outline-none focus:border-[#7C6FF5] mb-2"
+              className="w-full bg-subtle border border-border rounded-md px-3 py-2 text-fg text-sm outline-none focus:border-accent mb-2"
             />
             <button
               type="submit"
               disabled={addingColumn}
-              className="w-full bg-[#7C6FF5] hover:bg-[#6C5FE0] disabled:opacity-50 text-white text-sm font-medium rounded-md py-2"
+              className="w-full bg-accent hover:bg-accent-hover disabled:opacity-50 text-white text-sm font-medium rounded-md py-2"
             >
               {addingColumn ? 'Adding…' : 'Add column'}
             </button>

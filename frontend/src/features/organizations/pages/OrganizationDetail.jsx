@@ -4,9 +4,9 @@ import { useAuth } from "../../../hooks/useAuth"
 import { addMember, listMembers, listOrganizations } from "../api/organisations"
 
 const ROLE_STYLE = {
-  owner: 'bg-[#3A2E1B] text-[#F4C97A]',
-  admin: 'bg-[#1B2A3A] text-[#7AB8F4]',
-  member: 'bg-[#2A2A3A] text-[#B8B8D0]',
+  owner: 'bg-warn-bg text-warn',
+  admin: 'bg-info-bg text-info',
+  member: 'bg-subtle text-muted',
 }
 
 export default function OrganizationDetail() {
@@ -77,31 +77,31 @@ export default function OrganizationDetail() {
   }
 
 
-  if (loading) return <div className="min-h-screen bg-[#0B0F1A]" />
-  if (!org) return <div className="min-h-screen bg-[#0B0F1A] text-[#E4E7F2] text-center pt-20">Organization not found.</div>
+  if (loading) return <div className="p-6" />
+  if (!org) return <div className="p-6 text-fg text-center pt-20">Organization not found.</div>
 
     return (
-    <div className="min-h-screen bg-[#0B0F1A] p-6">
+    <div className="p-6">
       <div className="max-w-2xl mx-auto">
-        <Link to="/organizations" className="text-xs text-[#8B90A8] hover:text-[#E4E7F2]">
+        <Link to="/organizations" className="text-xs text-muted hover:text-fg">
           ← back to organizations
         </Link>
 
-        <h1 className="font-display text-2xl text-[#E4E7F2] mt-4">{org.name}</h1>
-        {org.description && <p className="text-sm text-[#8B90A8] mt-2 mb-6">{org.description}</p>}
+        <h1 className="font-display text-2xl text-fg mt-4">{org.name}</h1>
+        {org.description && <p className="text-sm text-muted mt-2 mb-6">{org.description}</p>}
 
         {error && (
-          <div className="mb-4 px-3 py-2 rounded-md bg-[#3A1B23] border border-[#5C2430] text-[#F4A9B5] text-sm">
+          <div className="mb-4 px-3 py-2 rounded-md bg-danger-bg border border-danger-border text-danger text-sm">
             {error}
           </div>
         )}
 
-        <h2 className="font-mono text-xs text-[#8B90A8] mb-3 mt-6">members ({members.length})</h2>
+        <h2 className="font-mono text-xs text-muted mb-3 mt-6">members ({members.length})</h2>
 
         <div className="space-y-2">
           {members.map((member) => (
-            <div key={member.id} className="flex items-center justify-between bg-[#12162A] border border-[#242B45] rounded-md px-4 py-3">
-              <Link to={`/profile/${member.username}`} className="text-sm text-[#E4E7F2] hover:text-[#7C6FF5]">
+            <div key={member.id} className="flex items-center justify-between bg-surface border border-border rounded-md px-4 py-3">
+              <Link to={`/profile/${member.username}`} className="text-sm text-fg hover:text-accent">
                 @{member.username}
               </Link>
               <span className={`text-xs px-2 py-1 rounded-md font-mono ${ROLE_STYLE[member.role]}`}>
@@ -119,13 +119,13 @@ export default function OrganizationDetail() {
               value={newMember.username}
               onChange={handleChange}
               placeholder="Username"
-              className="flex-1 bg-[#0F1424] border border-[#242B45] rounded-md px-3 py-2 text-[#E4E7F2] text-sm outline-none focus:border-[#7C6FF5]"
+              className="flex-1 bg-subtle border border-border rounded-md px-3 py-2 text-fg text-sm outline-none focus:border-accent"
             />
             <select
               name="role"
               value={newMember.role}
               onChange={handleChange}
-              className="bg-[#0F1424] border border-[#242B45] rounded-md px-3 py-2 text-[#E4E7F2] text-sm outline-none focus:border-[#7C6FF5]"
+              className="bg-subtle border border-border rounded-md px-3 py-2 text-fg text-sm outline-none focus:border-accent"
             >
               <option value="member">member</option>
               <option value="admin">admin</option>
@@ -134,7 +134,7 @@ export default function OrganizationDetail() {
             <button
               type="submit"
               disabled={adding}
-              className="bg-[#7C6FF5] hover:bg-[#6C5FE0] disabled:opacity-50 text-white text-sm font-medium rounded-md px-4 py-2"
+              className="bg-accent hover:bg-accent-hover disabled:opacity-50 text-white text-sm font-medium rounded-md px-4 py-2"
             >
               {adding ? 'Adding…' : 'Add'}
             </button>

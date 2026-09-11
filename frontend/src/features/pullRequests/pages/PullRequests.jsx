@@ -5,10 +5,10 @@ import { listPullRequests } from '../api/pullRequests'
 export default function PullRequests() {
 
   const STATUS_COLORS = {
-  draft: 'bg-[#2A2A3A] text-[#B8B8D0]',
-  review: 'bg-[#3A2E1B] text-[#F4C97A]',
-  approved: 'bg-[#1B3A2A] text-[#A9F4C0]',
-  merged: 'bg-[#1B2A3A] text-[#7AB8F4]',
+  draft: 'bg-subtle text-muted',
+  review: 'bg-warn-bg text-warn',
+  approved: 'bg-success-bg text-success',
+  merged: 'bg-info-bg text-info',
 }
     const {repoId}=useParams()
     const [loading,setLoading]=useState(true)
@@ -33,37 +33,37 @@ export default function PullRequests() {
       fetchPrs()
     },[repoId])
 
-    if (loading) return <div className="min-h-screen bg-[#0B0F1A]" />
+    if (loading) return <div className="p-6" />
 
 
     return (
       
-    <div className="min-h-screen bg-[#0B0F1A] p-6">
+    <div className="p-6">
       
         {error && (
-              <div className="mt-4 px-3 py-2 rounded-md bg-[#3A1B23] border border-[#5C2430] text-[#F4A9B5] text-sm">
+              <div className="mt-4 px-3 py-2 rounded-md bg-danger-bg border border-danger-border text-danger text-sm">
                 {error}
               </div>
         )}
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="font-display text-2xl text-[#E4E7F2]">Pull Requests</h1>
-          <Link to={`/repositories/${repoId}/pull-requests/new`} className="bg-[#7C6FF5] hover:bg-[#6C5FE0] text-white text-sm font-medium rounded-md px-4 py-2">
+          <h1 className="font-display text-2xl text-fg">Pull Requests</h1>
+          <Link to={`/repositories/${repoId}/pull-requests/new`} className="bg-accent hover:bg-accent-hover text-white text-sm font-medium rounded-md px-4 py-2">
             New pull request
           </Link>
         </div>
 
         <div className="space-y-2">
-          {prs.length === 0 && <p className="text-sm text-[#8B90A8]">No pull requests yet.</p>}
+          {prs.length === 0 && <p className="text-sm text-muted">No pull requests yet.</p>}
           {prs.map((pr) => (
             <Link
               key={pr.id}
               to={`/repositories/${repoId}/pull-requests/${pr.id}`}
-              className="flex items-center justify-between bg-[#12162A] border border-[#242B45] rounded-md px-4 py-3 hover:border-[#7C6FF5] transition-colors"
+              className="flex items-center justify-between bg-surface border border-border rounded-md px-4 py-3 hover:border-accent transition-colors"
             >
               <div>
-                <p className="text-sm text-[#E4E7F2] font-medium">{pr.title}</p>
-                <p className="text-xs text-[#8B90A8] mt-1">by @{pr.created_by}</p>
+                <p className="text-sm text-fg font-medium">{pr.title}</p>
+                <p className="text-xs text-muted mt-1">by @{pr.created_by}</p>
               </div>
               <span className={`text-xs px-2 py-1 rounded-md font-mono ${STATUS_COLORS[pr.status]}`}>
                 {pr.status}

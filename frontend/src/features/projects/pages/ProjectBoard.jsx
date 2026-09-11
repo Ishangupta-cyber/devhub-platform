@@ -206,20 +206,20 @@ export default function ProjectBoard() {
     }
   }
 
-  if (loading) return <div className="min-h-screen bg-[#0B0F1A]" />
-  if (!project) return <div className="min-h-screen bg-[#0B0F1A] text-[#E4E7F2] text-center pt-20">Board not found.</div>
+  if (loading) return <div className="p-6" />
+  if (!project) return <div className="p-6 text-fg text-center pt-20">Board not found.</div>
 
   return (
-    <div className="min-h-screen bg-[#0B0F1A] p-6">
+    <div className="p-6">
       <div className="max-w-5xl mx-auto">
-        <Link to={`/repositories/${repoId}/projects`} className="text-xs text-[#8B90A8] hover:text-[#E4E7F2]">
+        <Link to={`/repositories/${repoId}/projects`} className="text-xs text-muted hover:text-fg">
           ← back to projects
         </Link>
 
-        <h1 className="font-display text-2xl text-[#E4E7F2] mt-4 mb-6">{project.name}</h1>
+        <h1 className="font-display text-2xl text-fg mt-4 mb-6">{project.name}</h1>
 
         {error && (
-          <div className="mb-4 px-3 py-2 rounded-md bg-[#3A1B23] border border-[#5C2430] text-[#F4A9B5] text-sm">
+          <div className="mb-4 px-3 py-2 rounded-md bg-danger-bg border border-danger-border text-danger text-sm">
             {error}
           </div>
         )}

@@ -67,29 +67,29 @@ export default function PullRequestDetail() {
   }
 
 
-  if (loading) return <div className="min-h-screen bg-[#0B0F1A]" />
-  if (!pr) return <div className="min-h-screen bg-[#0B0F1A] text-[#E4E7F2] text-center pt-20">Pull request not found.</div>
+  if (loading) return <div className="p-6" />
+  if (!pr) return <div className="p-6 text-fg text-center pt-20">Pull request not found.</div>
 
   const availableActions = VALID_TRANSITIONS[pr.status] || []
 
 
     return (
-    <div className="min-h-screen bg-[#0B0F1A] p-6">
-      <div className="max-w-2xl mx-auto bg-[#12162A] border border-[#242B45] rounded-xl p-8">
-        <Link to={`/repositories/${repoId}/pull-requests`} className="text-xs text-[#8B90A8] hover:text-[#E4E7F2]">
+    <div className="p-6">
+      <div className="max-w-2xl mx-auto bg-surface border border-border rounded-xl p-8">
+        <Link to={`/repositories/${repoId}/pull-requests`} className="text-xs text-muted hover:text-fg">
           ← back to pull requests
         </Link>
 
         {error && (
-          <div className="mt-4 px-3 py-2 rounded-md bg-[#3A1B23] border border-[#5C2430] text-[#F4A9B5] text-sm">{error}</div>
+          <div className="mt-4 px-3 py-2 rounded-md bg-danger-bg border border-danger-border text-danger text-sm">{error}</div>
         )}
 
-        <h1 className="font-display text-2xl text-[#E4E7F2] mt-4">{pr.title}</h1>
-        <p className="text-sm text-[#8B90A8] mt-2">by @{pr.created_by}</p>
-        <p className="text-sm text-[#E4E7F2] mt-4">{pr.description}</p>
+        <h1 className="font-display text-2xl text-fg mt-4">{pr.title}</h1>
+        <p className="text-sm text-muted mt-2">by @{pr.created_by}</p>
+        <p className="text-sm text-fg mt-4">{pr.description}</p>
 
         <div className="mt-6 flex items-center gap-3">
-          <span className="text-xs px-2 py-1 rounded-md font-mono bg-[#0F1424] border border-[#242B45] text-[#E4E7F2]">
+          <span className="text-xs px-2 py-1 rounded-md font-mono bg-subtle border border-border text-fg">
             {pr.status}
           </span>
 
@@ -98,7 +98,7 @@ export default function PullRequestDetail() {
               key={nextStatus}
               onClick={() => handleTransition(nextStatus)}
               disabled={updating}
-              className="text-sm text-[#7C6FF5] hover:underline disabled:opacity-50"
+              className="text-sm text-accent hover:underline disabled:opacity-50"
             >
               {TRANSITION_LABELS[nextStatus]}
             </button>

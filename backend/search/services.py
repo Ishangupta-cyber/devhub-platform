@@ -7,8 +7,6 @@ from django.db.models import Q
 from wiki.models import WikiPage
 
 
-
-
 def search_repositories(query_text):
   vector=SearchVector('name',weight="A") + SearchVector('description',weight="B")
   query=SearchQuery(query_text)
@@ -30,7 +28,6 @@ def search_users(query_text):
         .filter(is_active=True)[:10]
     )
 
-
 def search_wiki(query_text):
     vector = SearchVector('title', weight='A') + SearchVector('content', weight='B')
     query = SearchQuery(query_text)
@@ -41,7 +38,6 @@ def search_wiki(query_text):
         .select_related('repository')
         .order_by('-rank')[:10]
     )
-
 
 SEARCH_MAP = {
     'repository': (search_repositories, 'repositories'),

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useDebounce } from '../../../hooks/useDebounce'
 
 export default function SearchBox() {
@@ -73,21 +73,21 @@ export default function SearchBox() {
           onChange={(e) => { setQuery(e.target.value); setOpen(true) }}
           onFocus={() => setOpen(true)}
           placeholder="Search…"
-          className="w-56 bg-[#0F1424] border border-[#242B45] rounded-md px-3 py-1.5 text-[#E4E7F2] text-sm outline-none focus:border-[#7C6FF5] transition-colors"
+          className="w-56 bg-subtle border border-border rounded-md px-3 py-1.5 text-fg text-sm outline-none focus:border-accent transition-colors"
         />
       </form>
 
       {open && query.trim() && (
-        <div className="absolute right-0 mt-2 w-96 bg-[#12162A] border border-[#242B45] rounded-md shadow-2xl z-50 max-h-96 overflow-y-auto">
-          {loading && <p className="text-xs text-[#8B90A8] px-4 py-3">Searching…</p>}
+        <div className="absolute right-0 mt-2 w-96 bg-surface border border-border rounded-md shadow-2xl z-50 max-h-96 overflow-y-auto">
+          {loading && <p className="text-xs text-muted px-4 py-3">Searching…</p>}
 
           {!loading && nonEmptyCategories.length === 0 && results && (
-            <p className="text-sm text-[#8B90A8] px-4 py-4 text-center">No results found.</p>
+            <p className="text-sm text-muted px-4 py-4 text-center">No results found.</p>
           )}
 
           {!loading && nonEmptyCategories.map(([categoryKey, items]) => (
-            <div key={categoryKey} className="border-b border-[#242B45] last:border-b-0">
-              <p className="font-mono text-[10px] text-[#8B90A8] px-4 pt-3 pb-1 uppercase tracking-wide">
+            <div key={categoryKey} className="border-b border-border last:border-b-0">
+              <p className="font-mono text-[10px] text-muted px-4 pt-3 pb-1 uppercase tracking-wide">
                 {CATEGORY_LABELS[categoryKey]}
               </p>
               {items.slice(0, 3).map((item, index) => (
@@ -95,10 +95,10 @@ export default function SearchBox() {
                   key={`${categoryKey}-${index}`}
                   to={getResultLink(categoryKey, item)}
                   onClick={handleSelect}
-                  className="block px-4 py-2 hover:bg-[#0F1424] transition-colors"
+                  className="block px-4 py-2 hover:bg-subtle transition-colors"
                 >
-                  <p className="text-sm text-[#E4E7F2]">{getResultTitle(categoryKey, item)}</p>
-                  <p className="text-xs text-[#8B90A8] truncate">{getResultSubtitle(categoryKey, item)}</p>
+                  <p className="text-sm text-fg">{getResultTitle(categoryKey, item)}</p>
+                  <p className="text-xs text-muted truncate">{getResultSubtitle(categoryKey, item)}</p>
                 </Link>
               ))}
             </div>
@@ -107,7 +107,7 @@ export default function SearchBox() {
           {!loading && nonEmptyCategories.length > 0 && (
             <button
               onClick={handleSubmit}
-              className="w-full text-center text-xs text-[#7C6FF5] hover:underline px-4 py-3 border-t border-[#242B45]"
+              className="w-full text-center text-xs text-accent hover:underline px-4 py-3 border-t border-border"
             >
               See all results
             </button>
