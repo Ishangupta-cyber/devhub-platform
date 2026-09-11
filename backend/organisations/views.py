@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.generics import ListCreateAPIView
 from .serializers import OrganisationSerializer,MembershipSerializer,AddMemberSerializer
 from .models import Organisation,Membership
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated,IsAuthenticatedOrReadOnly
 from .services import create_organisation,add_member
 from .permissions import IsManagerOrReadOnly
 from django.shortcuts import get_object_or_404
@@ -13,8 +13,17 @@ from authentication.models import User
 
 class OrganisationListCreateView(ListCreateAPIView):
   serializer_class=OrganisationSerializer
-  queryset=Organisation.objects.all()
-  permission_classes=[IsAuthenticatedOrReadOnly]
+  permission_classes=[IsAuthenticated]
+
+  def get_queryset(self):
+    """?user=<username> lists that user's organisations (used by profile pages).
+
+    Without it, returns the current user's own organisations.
+    """
+    username=self.request.query_params.get('user')
+    if username:
+      return Organisation.objects.filter(memberships__user__username=username).distinct()
+    return Organisation.objects.filter(memberships__user=self.request.user).distinct()
 
   def perform_create(self, serializer):
     org=create_organisation(name=serializer.validated_data['name'],

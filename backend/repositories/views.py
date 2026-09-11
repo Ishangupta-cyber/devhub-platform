@@ -13,14 +13,21 @@ class RepositoryListCreateView(generics.ListCreateAPIView):
   permission_classes=[permissions.IsAuthenticated]
 
   def get_queryset(self):
-    """Repositories the current user owns, plus those of orgs they belong to."""
+    """?owner=<username> lists that user's repos (used by profile pages).
+
+    Without it, returns what the current user can reach: their own repos
+    plus those belonging to organisations they are a member of.
+    """
+    base=Repository.objects.select_related('owner','organization')
+
+    owner=self.request.query_params.get('owner')
+    if owner:
+      return base.filter(owner__username=owner)
+
     user=self.request.user
-    return (
-      Repository.objects
-      .filter(Q(owner=user) | Q(organization__memberships__user=user))
-      .select_related('owner','organization')
-      .distinct()
-    )
+    return base.filter(
+      Q(owner=user) | Q(organization__memberships__user=user)
+    ).distinct()
 
   def perform_create(self, serializer):
     repo=create_repository(

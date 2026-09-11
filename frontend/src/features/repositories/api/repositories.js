@@ -1,7 +1,7 @@
 import apiClient from '../../../api/client'
 
-export const listRepositories = () => {
-  return apiClient.get('/repositories/')
+export const listRepositories = (params) => {
+  return apiClient.get('/repositories/', { params })
 }
 
 export const getRepository = (id) => {
