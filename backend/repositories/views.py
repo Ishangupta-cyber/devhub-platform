@@ -6,7 +6,6 @@ from .serializers import RepositorySerializer
 from .permissions import IsOwnerOrReadOnly
 from .services import create_repository
 
-# Create your views here.
 
 class RepositoryListCreateView(generics.ListCreateAPIView):
   serializer_class=RepositorySerializer

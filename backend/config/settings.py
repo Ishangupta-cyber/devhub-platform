@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     "activity",
     "wiki",
       'django.contrib.postgres',
+      'files'
 ]
 
 MIDDLEWARE = [

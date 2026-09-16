@@ -5,6 +5,14 @@ import { listNotiications, markAsRead } from "../features/notifications/api/noti
 export const NotificationContext = createContext(null)
 
 const MAX_RECONNECT_DELAY = 30000
+// how long a socket must stay open before we call it healthy and reset backoff
+const STABLE_CONNECTION_MS = 10000
+
+// derive ws://host from the api url so this works off localhost, and picks
+// wss:// automatically when the app is served over https
+const WS_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8000/api')
+  .replace(/^http/, 'ws')
+  .replace(/\/api\/?$/, '')
 
 function detach(socket) {
   socket.onopen = null
@@ -22,6 +30,7 @@ export default function NotificationProvider({ children }) {
   const socketRef = useRef(null)
   const reconnectAttemptsRef = useRef(0)
   const reconnectTimeoutRef = useRef(null)
+  const stableTimeoutRef = useRef(null)
   const shouldReconnectRef = useRef(false)
 
   const fetchNotifications = useCallback(async ({silent=false}={})=>{
@@ -57,7 +66,7 @@ export default function NotificationProvider({ children }) {
     const token = localStorage.getItem("accessToken")
     if (!token) return
 
-    const socket = new WebSocket(`ws://localhost:8000/ws/notifications/?token=${token}` )
+    const socket = new WebSocket(`${WS_URL}/ws/notifications/?token=${token}`)
     socketRef.current=socket
 
     socket.onopen=()=>{
@@ -66,7 +75,14 @@ export default function NotificationProvider({ children }) {
       if (reconnectAttemptsRef.current > 0) {
         fetchNotifications({silent:true})
       }
-      reconnectAttemptsRef.current=0
+      // Only treat the connection as healthy once it has SURVIVED a while.
+      // Resetting here immediately would mean a server that accepts and then
+      // drops (restart, reload, redis blip) sits at the 1s floor forever,
+      // because every short-lived open wipes the backoff.
+      clearTimeout(stableTimeoutRef.current)
+      stableTimeoutRef.current = setTimeout(()=>{
+        reconnectAttemptsRef.current=0
+      }, STABLE_CONNECTION_MS)
     }
 
     socket.onmessage=(event)=>{
@@ -81,13 +97,19 @@ export default function NotificationProvider({ children }) {
     socket.onclose=()=>{
       detach(socket)
       setConnected(false)
+      // died before proving itself - keep the current backoff level
+      clearTimeout(stableTimeoutRef.current)
 
       // socketRef badal gaya = ye purana socket hai, iske liye reconnect mat karo
       if (!shouldReconnectRef.current || socketRef.current!==socket) return
 
       const attempt = reconnectAttemptsRef.current
       reconnectAttemptsRef.current = attempt + 1
-      const delay = Math.min(1000 * 2 ** attempt, MAX_RECONNECT_DELAY)
+
+      // jitter: without it every open tab reconnects on the same tick after a
+      // server restart and they all hit it at once
+      const base = Math.min(1000 * 2 ** attempt, MAX_RECONNECT_DELAY)
+      const delay = base / 2 + Math.random() * (base / 2)
 
       reconnectTimeoutRef.current = setTimeout(connect, delay)
     }
@@ -103,6 +125,7 @@ export default function NotificationProvider({ children }) {
     return ()=>{
       shouldReconnectRef.current=false
       clearTimeout(reconnectTimeoutRef.current)
+      clearTimeout(stableTimeoutRef.current)
       reconnectTimeoutRef.current=null
 
       const socket = socketRef.current
