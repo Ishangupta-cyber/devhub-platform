@@ -9,5 +9,5 @@ class RepositorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Repository
-        fields = ['id', 'name', 'description', 'owner', 'organization', 'organization_id', 'created_at', 'updated_at']
+        fields = ['id', 'name', 'description', 'is_public', 'owner', 'organization', 'organization_id', 'created_at', 'updated_at']
         read_only_fields = ['id', 'created_at', 'updated_at']

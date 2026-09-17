@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from organisations.models import Organisation, Membership
 from repositories.models import Repository
 from .models import FileNode
 
@@ -180,3 +181,105 @@ class FileNodeAPITests(APITestCase):
         self.as_owner()
         res = self.client.get(self.detail_url(self.other_folder.pk))
         self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_patch_content_preserves_whitespace(self):
+        self.as_owner()
+        code = "def main():\n    return 1\n"
+        res = self.client.patch(self.detail_url(self.button.pk), {
+            'content': code,
+        }, format='json')
+        self.assertEqual(res.status_code, status.HTTP_200_OK, res.data)
+        self.assertEqual(res.data['content'], code)
+        self.button.refresh_from_db()
+        self.assertEqual(self.button.content, code)
+
+    def test_create_content_preserves_whitespace(self):
+        self.as_owner()
+        code = "\n\nconst x = 1;\n"
+        res = self.client.post(self.tree_url, {
+            'name': 'ws.js', 'node_type': 'file', 'content': code,
+        }, format='json')
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED, res.data)
+        self.assertEqual(res.data['content'], code)
+        self.assertEqual(FileNode.objects.get(pk=res.data['id']).content, code)
+
+    def test_patch_content_to_only_newline(self):
+        self.as_owner()
+        res = self.client.patch(self.detail_url(self.button.pk), {
+            'content': '\n',
+        }, format='json')
+        self.assertEqual(res.status_code, status.HTTP_200_OK, res.data)
+        self.assertEqual(res.data['content'], '\n')
+
+
+class PrivateRepositoryFileTests(APITestCase):
+    """is_public=False hone pe read kiske liye khula rehta hai."""
+
+    def setUp(self):
+        self.owner = User.objects.create_user(
+            username='powner', email='powner@example.com', password='pass12345'
+        )
+        self.member = User.objects.create_user(
+            username='pmember', email='pmember@example.com', password='pass12345'
+        )
+        self.stranger = User.objects.create_user(
+            username='pstranger', email='pstranger@example.com', password='pass12345'
+        )
+
+        self.org = Organisation.objects.create(name='acme')
+        Membership.objects.create(
+            organisation=self.org, user=self.owner, role='owner'
+        )
+        # Plain member - manage rights nahi, sirf dekhne ka haq
+        Membership.objects.create(
+            organisation=self.org, user=self.member, role='member'
+        )
+
+        self.private = Repository.objects.create(
+            name='secret-repo', owner=self.owner,
+            organization=self.org, is_public=False,
+        )
+        self.node = FileNode.objects.create(
+            repository=self.private, name='keys.env',
+            node_type=FileNode.NodeType.FILE, content='TOKEN=abc',
+        )
+
+        self.tree_url = f'/api/repositories/{self.private.pk}/tree/'
+        self.node_url = f'/api/repositories/{self.private.pk}/files/{self.node.pk}/'
+
+    def test_anonymous_cannot_read_private_tree(self):
+        res = self.client.get(self.tree_url)
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED, res.data)
+
+    def test_anonymous_cannot_read_private_file(self):
+        res = self.client.get(self.node_url)
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED, res.data)
+
+    def test_stranger_cannot_read_private_tree(self):
+        self.client.force_authenticate(user=self.stranger)
+        res = self.client.get(self.tree_url)
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN, res.data)
+
+    def test_owner_can_read_private_tree(self):
+        self.client.force_authenticate(user=self.owner)
+        res = self.client.get(self.tree_url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK, res.data)
+        self.assertEqual(len(res.data), 1)
+
+    def test_plain_org_member_can_read_but_not_write(self):
+        self.client.force_authenticate(user=self.member)
+
+        read = self.client.get(self.node_url)
+        self.assertEqual(read.status_code, status.HTTP_200_OK, read.data)
+        self.assertEqual(read.data['content'], 'TOKEN=abc')
+
+        write = self.client.post(self.tree_url, {
+            'name': 'x.js', 'node_type': 'file',
+        }, format='json')
+        self.assertEqual(write.status_code, status.HTTP_403_FORBIDDEN, write.data)
+
+    def test_making_repo_public_opens_read(self):
+        self.private.is_public = True
+        self.private.save(update_fields=['is_public'])
+        res = self.client.get(self.tree_url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK, res.data)

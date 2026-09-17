@@ -6,6 +6,11 @@ from organisations.models import Organisation,Membership
 class Repository(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
+    is_public = models.BooleanField(
+        default=True,
+        help_text='Public repo koi bhi padh sakta hai. Private sirf owner aur '
+                  'organisation members ko dikhta hai.'
+    )
     organization = models.ForeignKey(
         Organisation,
         related_name='repositories',
@@ -24,6 +29,21 @@ class Repository(models.Model):
     class Meta:
         unique_together = ('owner', 'name')
         ordering = ['-created_at']
+
+    def user_can_view(self, user):
+        """Read access. Manage se dheela hai - plain 'member' bhi padh sakta hai."""
+        if self.is_public:
+            return True
+        if not user or not user.is_authenticated:
+            return False
+        if self.owner == user:
+            return True
+        if self.organization:
+            return Membership.objects.filter(
+                organisation=self.organization,
+                user=user
+            ).exists()
+        return False
 
     def user_can_manage(self, user):
         if not user or not user.is_authenticated:

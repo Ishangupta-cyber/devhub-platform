@@ -19,11 +19,16 @@ class RepositoryListCreateView(generics.ListCreateAPIView):
     """
     base=Repository.objects.select_related('owner','organization')
 
+    user=self.request.user
+
     owner=self.request.query_params.get('owner')
     if owner:
-      return base.filter(owner__username=owner)
+      # Kisi aur ki profile dekh rahe ho to sirf wo repos jo tumhe dikhne
+      # chahiye - public, ya jinme tum shaamil ho.
+      return base.filter(owner__username=owner).filter(
+        Q(is_public=True) | Q(owner=user) | Q(organization__memberships__user=user)
+      ).distinct()
 
-    user=self.request.user
     return base.filter(
       Q(owner=user) | Q(organization__memberships__user=user)
     ).distinct()
