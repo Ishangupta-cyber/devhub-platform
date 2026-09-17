@@ -11,10 +11,11 @@ class FileNodeCreateSerializer(serializers.Serializer):
   content = serializers.CharField(
     required=False, allow_blank=True, default='', trim_whitespace=False,
   )
-
+  
 
 class FileNodeUpdateSerializer(serializers.Serializer):
   name = serializers.CharField(max_length=255, required=False)
   content = serializers.CharField(
     required=False, allow_blank=True, trim_whitespace=False,
   )
+  parent = serializers.IntegerField(required=False, allow_null=True)

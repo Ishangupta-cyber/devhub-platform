@@ -51,10 +51,7 @@ def _validate_unique_name(repository, parent, name, exclude_pk=None):
 
 
 def _resolve_parent(parent_id, repository):
-    """
-    parent_id (int ya None) -> FileNode object ya None.
-    Saath mein validate bhi karta hai.
-    """
+
     if parent_id is None:
         return None
 
@@ -111,6 +108,43 @@ def update_file_node(node, name=None, content=None):
             node.save(update_fields=changed)
     except IntegrityError:
         raise ValidationError(f"'{node.name}' pehle se maujood hai.")
+
+    return node
+
+def _creates_cycle(node, new_parent):
+   
+    current = new_parent
+    while current is not None:
+        if current.pk == node.pk:
+            return True
+        current = current.parent
+    return False
+
+def move_file_node(node, new_parent_id):
+    """
+    Node ka parent badlo. new_parent_id None = root pe.
+    Caller ne decide kar liya hai ki move karna HAI — ye function
+    'parent bheja tha ya nahi' nahi poochhta.
+    """
+    new_parent = _resolve_parent(new_parent_id, node.repository)
+
+    # Kuch badal hi nahi raha
+    if node.parent_id == (new_parent.pk if new_parent else None):
+        return node
+
+    if new_parent is not None and _creates_cycle(node, new_parent):
+        raise ValidationError(
+            f"'{node.name}' ko uske apne descendant ke andar move nahi kar sakte."
+        )
+
+    _validate_unique_name(node.repository, new_parent, node.name, exclude_pk=node.pk)
+
+    node.parent = new_parent
+    try:
+        with transaction.atomic():
+            node.save(update_fields=['parent', 'updated_at'])
+    except IntegrityError:
+        raise ValidationError(f"Destination mein '{node.name}' pehle se maujood hai.")
 
     return node
 

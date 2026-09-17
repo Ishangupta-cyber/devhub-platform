@@ -14,6 +14,7 @@ from .services import (
     update_file_node,
     delete_file_node,
     _resolve_parent,
+    move_file_node
 )
 
 
@@ -63,6 +64,10 @@ class FileNodeDetailView(APIView):
         serializer = FileNodeUpdateSerializer(data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
+
+    # Move pehle — parent badal jaye to uniqueness naye folder mein check hogi
+        if 'parent' in data:
+            node = move_file_node(node, data['parent'])
 
         node = update_file_node(
             node,
