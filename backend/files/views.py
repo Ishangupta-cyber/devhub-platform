@@ -13,7 +13,6 @@ from .services import (
     create_file_node,
     update_file_node,
     delete_file_node,
-    _resolve_parent,
     move_file_node
 )
 
@@ -34,13 +33,11 @@ class FileTreeView(APIView):
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
 
-        parent = _resolve_parent(data.get('parent'), repository)
-
         node = create_file_node(
             repository=repository,
             name=data['name'],
             node_type=data['node_type'],
-            parent=parent,
+            parent_id=data.get('parent'),
             content=data.get('content', ''),
         )
         return Response(get_node_details(node), status=status.HTTP_201_CREATED)

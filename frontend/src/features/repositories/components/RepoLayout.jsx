@@ -9,13 +9,10 @@ const TABS = [
   { to: 'pull-requests', label: 'Pull requests' },
   { to: 'projects', label: 'Projects' },
   { to: 'wiki', label: 'Wiki' },
+    { to: 'code', label: 'Code' },    
 ]
 
-/**
- * Shared chrome for everything under /repositories/:repoId.
- * Fetches the repo once and hands it to child routes via outlet context,
- * so the sub-pages don't each refetch it.
- */
+
 export default function RepoLayout() {
   const { repoId } = useParams()
   const [repo, setRepo] = useState(null)
@@ -63,7 +60,7 @@ export default function RepoLayout() {
               @{repo.owner}
             </Link>
             <span className="text-muted">/</span>
-            <h1 className="font-display text-xl font-semibold text-fg font-mono">{repo.name}</h1>
+            <h1 className="font-display text-xl font-semibold text-fg">{repo.name}</h1>
             {repo.organization && (
               <Link
                 to={`/organizations/${repo.organization.id}`}

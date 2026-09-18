@@ -14,6 +14,7 @@ import organizationRoutes from './features/organizations/routes.jsx'
 import wikiRoutes from './features/wiki/routes.jsx'
 import notificationRoutes from './features/notifications/routes.jsx'
 import searchRoutes from './features/search/routes.jsx'
+import fileRoutes from './features/files/routes.jsx'
 
 function NotFound() {
   return (
@@ -50,6 +51,7 @@ const App = () => {
           {pullRequestRoutes}
           {projectRoutes}
           {wikiRoutes}
+          {fileRoutes}
         </Route>
 
         <Route path="*" element={<NotFound />} />

@@ -1,6 +1,7 @@
 
 from celery import shared_task
 from django.contrib.contenttypes.models import ContentType
+from django.db import transaction
 from .models import Notification 
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
@@ -30,10 +31,13 @@ def notify(recipient,actor,verb,target):
     return 
   
   content_type=ContentType.objects.get_for_model(target)
-  send_notification_task.delay(
+
+  # on_commit — commit ke baad hi bheja jaye, warna worker ko wo row
+  # nahi milegi jiske liye notification bhej rahe hain.
+  transaction.on_commit(lambda: send_notification_task.delay(
     recipient_id=recipient.id,
     actor_id=actor.id,
     verb=verb,
     content_type_id=content_type.id,
     object_id=target.id
-  )
+  ))

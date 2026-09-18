@@ -3,6 +3,18 @@ from django.db import IntegrityError, transaction
 
 from .models import FileNode
 
+INVALID_NAMES = {'', '.', '..'}
+INVALID_CHARS = {'/', '\\', '\0'}
+
+
+def _validate_name(name):
+    """Naam ek dabba hai, path nahi. Separator aur reserved naam allowed nahi."""
+    if name in INVALID_NAMES:
+        raise ValidationError(f"'{name}' valid naam nahi hai.")
+    for ch in INVALID_CHARS:
+        if ch in name:
+            raise ValidationError(f"Naam mein '{ch}' allowed nahi hai.")
+
 
 def get_file_tree(repository):
   nodes=FileNode.objects.filter(repository=repository).defer('content').order_by('-node_type','name')
@@ -51,7 +63,6 @@ def _validate_unique_name(repository, parent, name, exclude_pk=None):
 
 
 def _resolve_parent(parent_id, repository):
-
     if parent_id is None:
         return None
 
@@ -62,11 +73,12 @@ def _resolve_parent(parent_id, repository):
 
     if not parent.is_folder:
         raise ValidationError("Parent ek folder hona chahiye — file ke andar kuch nahi bana sakte.")
-
     return parent
 
 
-def create_file_node(repository, name, node_type, parent=None, content=''):
+def create_file_node(repository, name, node_type, parent_id=None, content=''):
+    parent = _resolve_parent(parent_id, repository)
+    _validate_name(name)
     _validate_unique_name(repository, parent, name)
 
     is_folder = node_type == FileNode.NodeType.FOLDER
@@ -88,7 +100,10 @@ def update_file_node(node, name=None, content=None):
     changed = []
 
     if name is not None and name != node.name:
+
+        _validate_name(name)    
         _validate_unique_name(node.repository, node.parent, name, exclude_pk=node.pk)
+
         node.name = name
         changed.append('name')
 
@@ -112,7 +127,6 @@ def update_file_node(node, name=None, content=None):
     return node
 
 def _creates_cycle(node, new_parent):
-   
     current = new_parent
     while current is not None:
         if current.pk == node.pk:
@@ -128,7 +142,6 @@ def move_file_node(node, new_parent_id):
     """
     new_parent = _resolve_parent(new_parent_id, node.repository)
 
-    # Kuch badal hi nahi raha
     if node.parent_id == (new_parent.pk if new_parent else None):
         return node
 

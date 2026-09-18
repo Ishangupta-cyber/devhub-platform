@@ -230,6 +230,31 @@ class FileNodeAPITests(APITestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK, res.data)
         self.assertEqual(res.data['content'], '\n')
 
+    # Naam ek dabba hai, path nahi — separator aur reserved naam allowed nahi.
+    def test_name_with_slash_rejected(self):
+
+        self.as_owner()
+        res = self.client.post(self.tree_url, {
+            'name': 'a/b.js', 'node_type': 'file',
+        }, format='json')
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST, res.data)
+
+    def test_name_dotdot_rejected(self):
+
+        self.as_owner()
+        res = self.client.post(self.tree_url, {
+            'name': '..', 'node_type': 'folder',
+        }, format='json')
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST, res.data)
+
+    def test_rename_to_slash_rejected(self):
+
+        self.as_owner()
+        res = self.client.patch(self.detail_url(self.button.pk), {
+            'name': 'x/y.js',
+        }, format='json')
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST, res.data)
+
     def test_move_file_to_folder(self):
 
         self.as_owner()

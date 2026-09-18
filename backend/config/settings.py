@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
+import sys
 from pathlib import Path
 from decouple import config
 from datetime import timedelta
@@ -185,3 +186,10 @@ CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
+
+# Tests ke time tasks asli Redis par nahi jaane chahiye — warna chalu worker
+# unhe uthata hai aur dev DB mein dhoondhta hai, jahan test ka data hai hi nahi.
+TESTING = sys.argv[1:2] == ['test']
+if TESTING:
+    CELERY_TASK_ALWAYS_EAGER = True
+    CELERY_TASK_EAGER_PROPAGATES = False
