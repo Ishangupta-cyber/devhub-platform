@@ -37,7 +37,7 @@ class MembershipListCreateView(ListCreateAPIView):
   permission_classes=[IsManagerOrReadOnly]
 
   def get_queryset(self):
-    return Membership.objects.filter(organisation_id=self.kwargs["org_id"])
+    return Membership.objects.filter(organisation_id=self.kwargs["org_id"]).select_related("user")
 
   def get_serializer_class(self):
     if self.request.method=="POST":
@@ -49,7 +49,7 @@ class MembershipListCreateView(ListCreateAPIView):
     organisation=get_object_or_404(Organisation,id=self.kwargs["org_id"])
     target_user=get_object_or_404(User,username=serializer.validated_data["username"])
 
-    membership=add_member(organisation=organisation,user=target_user,role=serializer.validated_data["role"])
+    membership=add_member(organisation=organisation,user=target_user,role=serializer.validated_data["role"],added_by=self.request.user)
 
     output_serializer=MembershipSerializer(membership)
     serializer._data=output_serializer.data

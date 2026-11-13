@@ -8,7 +8,7 @@ from profiles.models import Follow
 @receiver(post_save,sender=Comments)
 def on_comment(sender,instance,created,**kwargs):
   if created:
-    issue=instance.content.object
+    issue=instance.content_object
     if hasattr(issue,'created_by'):
       notify(recipient=issue.created_by,actor=instance.author,verb="commented_on_your_issue",target=issue)
 

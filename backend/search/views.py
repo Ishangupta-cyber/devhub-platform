@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from .serailizers import RepoResultSerializer,IssueResultSerializer,UserResultSerializer,WikiResultSerializer
+from .serializers import RepoResultSerializer,IssueResultSerializer,UserResultSerializer,WikiResultSerializer
 from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework import status
@@ -34,7 +34,7 @@ class SearchView(APIView):
     results={}
     for t in types_to_search:
       search_func,result_key=SEARCH_MAP[t]
-      queryset = search_func(query_text)
+      queryset = search_func(query_text, request.user)
       serializer_class = SERIALIZER_MAP[result_key]
       results[result_key] = serializer_class(queryset, many=True).data
 

@@ -14,9 +14,13 @@ class ColumnSerializer(serializers.ModelSerializer):
     model=Column
     fields=["id","name","position"]
     read_only_fields=["id"]
+    extra_kwargs={"position":{"required":False}}
 
 class CardSerializer(serializers.ModelSerializer):
-  # writing_only 
+  # writable on update, so the board's drag-and-drop can move a card
+  column=serializers.IntegerField(source="column_id",required=False)
+  position=serializers.IntegerField(min_value=0,required=False)
+  # write_only, used on create
   link_type=serializers.CharField(write_only=True,required=False)
   link_id=serializers.IntegerField(write_only=True,required=False)
   # reading_only
@@ -27,10 +31,11 @@ class CardSerializer(serializers.ModelSerializer):
   class Meta:
     model=Card
     fields=['id', 'column', 'position', 'link_type', 'link_id', 'linked_type', 'linked_id', 'linked_title', 'added_at']
-    read_only_fields=['id', 'column', 'position', 'added_at']
+    read_only_fields=['id', 'added_at']
 
   def get_linked_type(self,obj):
     return obj.content_type.model
   def get_linked_title(self,obj):
-    return obj.content_object.title
+    target=obj.content_object
+    return target.title if target is not None else None
   

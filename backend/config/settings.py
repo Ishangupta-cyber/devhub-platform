@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 
 import sys
 from pathlib import Path
+from django.core.exceptions import ImproperlyConfigured
 from decouple import config
 from datetime import timedelta
 from urllib.parse import urlparse, unquote
@@ -25,10 +26,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY', default='django-insecure-ha%f76orx7(s=pluhnl9-z7qd0p0@ed+1xa4*d94#_ifhbkr+x')
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
+
+# SECURITY WARNING: keep the secret key used in production secret!
+# The fallback is for local development only; production must set SECRET_KEY.
+SECRET_KEY = config('SECRET_KEY', default='')
+if not SECRET_KEY:
+    if not DEBUG:
+        raise ImproperlyConfigured('SECRET_KEY must be set when DEBUG is False.')
+    SECRET_KEY = 'django-insecure-local-dev-only-do-not-use-in-production'
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='', cast=lambda v: [h.strip() for h in v.split(',') if h.strip()])
 
@@ -160,6 +167,18 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# Production hardening — Render terminates TLS at its proxy.
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='', cast=lambda v: [o.strip() for o in v.split(',') if o.strip()])
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=True, cast=bool)
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
 
 
 # Email
@@ -176,6 +195,18 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'EXCEPTION_HANDLER': 'config.exception_handlers.custom_exception_handler',
+    # Secure by default: views that should be public opt in with AllowAny.
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_THROTTLE_CLASSES': (
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ),
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': config('THROTTLE_ANON', default='60/min'),
+        'user': config('THROTTLE_USER', default='600/min'),
+    },
 }
 
 SIMPLE_JWT = {
@@ -207,6 +238,14 @@ CELERY_TASK_SERIALIZER = 'json'
 # Tests ke time tasks asli Redis par nahi jaane chahiye — warna chalu worker
 # unhe uthata hai aur dev DB mein dhoondhta hai, jahan test ka data hai hi nahi.
 TESTING = sys.argv[1:2] == ['test']
+
+# With no Celery worker running (e.g. a single free Render web service), run
+# tasks inline in the request instead of queueing them forever in Redis.
+# Set CELERY_TASK_ALWAYS_EAGER=False once a worker is deployed.
+CELERY_TASK_ALWAYS_EAGER = config('CELERY_TASK_ALWAYS_EAGER', default=TESTING, cast=bool)
+CELERY_TASK_EAGER_PROPAGATES = False
+
 if TESTING:
     CELERY_TASK_ALWAYS_EAGER = True
-    CELERY_TASK_EAGER_PROPAGATES = False
+    # throttling would make the test suite flaky
+    REST_FRAMEWORK['DEFAULT_THROTTLE_CLASSES'] = ()

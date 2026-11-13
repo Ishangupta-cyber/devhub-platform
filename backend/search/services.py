@@ -45,7 +45,11 @@ def _ranked(queryset, vector, query, related=None):
     return qs.order_by('-rank')[:10]
 
 
-def search_repositories(query_text):
+def _visible_repo_ids(user):
+    return Repository.objects.visible_to(user).values('id')
+
+
+def search_repositories(query_text, user):
     query = build_query(query_text)
     if query is None:
         return Repository.objects.none()
@@ -53,10 +57,11 @@ def search_repositories(query_text):
         SearchVector('name', weight='A', config=CONFIG)
         + SearchVector('description', weight='B', config=CONFIG)
     )
-    return _ranked(Repository.objects.all(), vector, query, related=['owner'])
+    qs = Repository.objects.filter(id__in=_visible_repo_ids(user))
+    return _ranked(qs, vector, query, related=['owner'])
 
 
-def search_issues(query_text):
+def search_issues(query_text, user):
     query = build_query(query_text)
     if query is None:
         return Issue.objects.none()
@@ -64,10 +69,11 @@ def search_issues(query_text):
         SearchVector('title', weight='A', config=CONFIG)
         + SearchVector('description', weight='B', config=CONFIG)
     )
-    return _ranked(Issue.objects.all(), vector, query, related=['repository'])
+    qs = Issue.objects.filter(repository_id__in=_visible_repo_ids(user))
+    return _ranked(qs, vector, query, related=['repository'])
 
 
-def search_users(query_text):
+def search_users(query_text, user=None):
     # usernames are identifiers, not prose - substring beats full-text here
     query_text = query_text.strip()
     if not query_text:
@@ -79,7 +85,7 @@ def search_users(query_text):
     )
 
 
-def search_wiki(query_text):
+def search_wiki(query_text, user):
     query = build_query(query_text)
     if query is None:
         return WikiPage.objects.none()
@@ -87,7 +93,8 @@ def search_wiki(query_text):
         SearchVector('title', weight='A', config=CONFIG)
         + SearchVector('content', weight='B', config=CONFIG)
     )
-    return _ranked(WikiPage.objects.all(), vector, query, related=['repository'])
+    qs = WikiPage.objects.filter(repository_id__in=_visible_repo_ids(user))
+    return _ranked(qs, vector, query, related=['repository'])
 
 
 SEARCH_MAP = {

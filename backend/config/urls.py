@@ -16,9 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from authentication.views import HealthView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/health/', HealthView.as_view(), name='health'),
     path('api/auth/', include('authentication.urls')),
     path('api/profiles/', include('profiles.urls')),
     path('api/repositories/', include('repositories.urls')),
@@ -28,5 +30,5 @@ urlpatterns = [
     path('api/activity/', include('activity.urls')),
     path('api/notifications/', include('notifications.urls')),
     path('api/search/', include('search.urls')),
-      path('api/', include('files.urls')),  
+    path('api/', include('files.urls')),
 ]

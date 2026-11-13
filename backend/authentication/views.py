@@ -3,13 +3,17 @@ from rest_framework.views import APIView
 from rest_framework import status
 from .serializers import RegisterSerializer,MeSerializer
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
 # Create your views here.
 
 class RegisterView(APIView):
+  permission_classes=[AllowAny]
+
   def post(self,request):
     serializer=RegisterSerializer(data=request.data)
     if serializer.is_valid():
@@ -55,11 +59,16 @@ class ChangePassword(APIView):
     old_password=request.data.get("old_password")
     new_password=request.data.get("new_password")
 
-    if not user.check_password(old_password):
+    if not old_password or not user.check_password(old_password):
       return Response({"error": "Old password is incorrect"},status=status.HTTP_400_BAD_REQUEST)
 
-    if len(new_password)<8:
-      return Response({"error": "New password must be at least 8 characters"},status=status.HTTP_400_BAD_REQUEST)
+    if not new_password:
+      return Response({"error": "New password is required"},status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+      validate_password(new_password,user=user)
+    except DjangoValidationError as e:
+      return Response({"error": " ".join(e.messages)},status=status.HTTP_400_BAD_REQUEST)
 
     user.set_password(new_password)
     user.save()
@@ -68,3 +77,12 @@ class ChangePassword(APIView):
 
 
   
+
+class HealthView(APIView):
+  """Cheap liveness check: no DB, no auth. Used by Render's health check and
+  by the frontend to wake the server early."""
+  permission_classes=[AllowAny]
+  authentication_classes=[]
+
+  def get(self,request):
+    return Response({"status":"ok"})

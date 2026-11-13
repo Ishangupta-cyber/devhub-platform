@@ -91,4 +91,4 @@ class UserRepositoriesListView(ListAPIView):
 
    def get_queryset(self):
       target_user=get_object_or_404(User,username=self.kwargs["username"])
-      return Repository.objects.filter(owner=target_user)
+      return Repository.objects.visible_to(self.request.user).filter(owner=target_user).select_related("owner","organization")

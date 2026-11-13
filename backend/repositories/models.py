@@ -1,6 +1,18 @@
 from django.conf import settings
 from django.db import models
+from django.db.models import Q
 from organisations.models import Organisation,Membership
+
+
+class RepositoryQuerySet(models.QuerySet):
+    def visible_to(self, user):
+        """Repos `user` may read: public ones, plus private ones they own or
+        whose organisation they belong to. Mirrors Repository.user_can_view."""
+        if not user or not user.is_authenticated:
+            return self.filter(is_public=True)
+        return self.filter(
+            Q(is_public=True) | Q(owner=user) | Q(organization__memberships__user=user)
+        ).distinct()
 
 
 class Repository(models.Model):
@@ -25,6 +37,8 @@ class Repository(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    objects = RepositoryQuerySet.as_manager()
 
     class Meta:
         unique_together = ('owner', 'name')

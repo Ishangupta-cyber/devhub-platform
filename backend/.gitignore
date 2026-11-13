@@ -5,3 +5,6 @@
 
 
 .env
+# collected static files and user uploads
+staticfiles/
+media/
