@@ -75,7 +75,7 @@ export default function SearchBox() {
   const nonEmptyCategories = results ? Object.entries(results).filter(([, items]) => items.length > 0) : []
 
   return (
-    <div className="relative" ref={containerRef}>
+    <div className="relative min-w-0" ref={containerRef}>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -83,12 +83,12 @@ export default function SearchBox() {
           onChange={(e) => { setQuery(e.target.value); setOpen(true) }}
           onFocus={() => setOpen(true)}
           placeholder="Search…"
-          className="w-56 bg-subtle border border-border rounded-md px-3 py-1.5 text-fg text-sm outline-none focus:border-accent transition-colors"
+          className="w-full sm:w-56 bg-subtle border border-border rounded-md px-3 py-1.5 text-fg text-sm outline-none focus:border-accent transition-colors"
         />
       </form>
 
       {open && query.trim() && (
-        <div className="absolute right-0 mt-2 w-96 bg-surface border border-border rounded-md shadow-2xl z-50 max-h-96 overflow-y-auto">
+        <div className="absolute right-0 mt-2 w-[min(24rem,calc(100vw-2rem))] bg-surface border border-border rounded-md shadow-2xl z-50 max-h-96 overflow-y-auto">
           {loading && <p className="text-xs text-muted px-4 py-3">Searching…</p>}
 
           {!loading && nonEmptyCategories.length === 0 && results && (

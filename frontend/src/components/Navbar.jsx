@@ -24,9 +24,9 @@ function Navbar() {
 
   return (
     <nav className="sticky top-0 z-40 bg-surface border-b border-border">
-      <div className="mx-auto max-w-6xl px-6 h-14 flex items-center justify-between gap-4">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 h-14 flex items-center justify-between gap-3 sm:gap-4">
 
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-6 shrink-0">
           <Link to="/" className="font-display text-lg font-semibold text-fg">
             Dev<span className="text-accent">hub</span>
           </Link>
@@ -50,7 +50,7 @@ function Navbar() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           {user && <SearchBox />}
           {user && <NotificationBell />}
 
