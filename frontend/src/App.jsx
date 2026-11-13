@@ -1,4 +1,6 @@
+import { Suspense } from 'react'
 import { Route, Routes, Link } from 'react-router-dom'
+import PageLoader from './components/PageLoader.jsx'
 import AppLayout from './components/AppLayout.jsx'
 import Home from './pages/Home.jsx'
 import RepoLayout from './features/repositories/components/RepoLayout.jsx'
@@ -30,6 +32,7 @@ function NotFound() {
 
 const App = () => {
   return (
+    <Suspense fallback={<PageLoader fullScreen />}>
     <Routes>
       {/* public */}
       {authRoutes}
@@ -57,6 +60,7 @@ const App = () => {
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
+    </Suspense>
   )
 }
 

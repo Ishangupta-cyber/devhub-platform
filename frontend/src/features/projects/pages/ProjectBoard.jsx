@@ -69,13 +69,16 @@ export default function ProjectBoard() {
       setCardsByColumn({ ...cardsByColumn, [sourceColId]: sourceCards, [destColId]: newDestCards })
     }
 
+    setError("")
     try {
       await moveCard(sourceColId, movedCard.id, { column: destColId, position: newPosition })
-    } catch (err) {
+      // the server may renumber a column when positions collide; pull the real
+      // positions back so the next drag computes midpoints from fresh values
+      const { data } = await listCards(destColId)
+      setCardsByColumn((prev) => ({ ...prev, [destColId]: Array.isArray(data) ? data : data.results }))
+    } catch {
       setCardsByColumn(previousState)
       setError('Failed to move card.')
-    } finally {
-      setError("")
     }
   }
 

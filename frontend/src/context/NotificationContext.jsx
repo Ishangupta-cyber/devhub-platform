@@ -1,6 +1,7 @@
 import { createContext, useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "../hooks/useAuth";
-import { listNotiications, markAsRead } from "../features/notifications/api/notifications";
+import { listNotifications, markAsRead } from "../features/notifications/api/notifications";
+import { WS_URL } from "../api/config";
 
 export const NotificationContext = createContext(null)
 
@@ -8,11 +9,6 @@ const MAX_RECONNECT_DELAY = 30000
 // how long a socket must stay open before we call it healthy and reset backoff
 const STABLE_CONNECTION_MS = 10000
 
-// derive ws://host from the api url so this works off localhost, and picks
-// wss:// automatically when the app is served over https
-const WS_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8000/api')
-  .replace(/^http/, 'ws')
-  .replace(/\/api\/?$/, '')
 
 function detach(socket) {
   socket.onopen = null
@@ -37,7 +33,7 @@ export default function NotificationProvider({ children }) {
     if (!silent) setLoading(true)
     try 
     {
-      const res = await listNotiications()
+      const res = await listNotifications()
       const data = Array.isArray(res.data)? res.data : res.data.results
       setNotifications(data)
     } 

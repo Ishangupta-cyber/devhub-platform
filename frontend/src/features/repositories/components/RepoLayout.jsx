@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react'
+import { Suspense, useCallback, useEffect, useState } from 'react'
+import PageLoader from '../../../components/PageLoader'
 import { Link, NavLink, Outlet, useParams } from 'react-router-dom'
 import { getRepository } from '../api/repositories'
 import useCanManageRepo from '../../../hooks/useCanManageRepo'
@@ -96,7 +97,9 @@ export default function RepoLayout() {
         </div>
       </header>
 
-      <Outlet context={{ repo, canManage: canManage && !checking, onRepoChange }} />
+      <Suspense fallback={<PageLoader />}>
+        <Outlet context={{ repo, canManage: canManage && !checking, onRepoChange }} />
+      </Suspense>
     </div>
   )
 }

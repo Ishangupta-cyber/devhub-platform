@@ -1,10 +1,7 @@
+import { lazy } from "react"
 import { Route } from "react-router-dom";
-import OrganizationList from "./pages/OrganizationList";
-import OrganizationDetail from "./pages/OrganizationDetail";
-
-
-
-
+const OrganizationList = lazy(() => import("./pages/OrganizationList"))
+const OrganizationDetail = lazy(() => import("./pages/OrganizationDetail"))
 const organizationRoutes=(
 
   <>

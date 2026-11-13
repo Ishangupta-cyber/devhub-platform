@@ -1,9 +1,9 @@
+import { lazy } from "react"
 import { Route } from 'react-router-dom'
-import Profile from './pages/Profile.jsx'
-import FollowList from './pages/FollowList.jsx'
-import EditProfile from './pages/EditProfile.jsx'
-import ChangePassword from './pages/ChangePassword.jsx'
-
+const Profile = lazy(() => import("./pages/Profile.jsx"))
+const FollowList = lazy(() => import("./pages/FollowList.jsx"))
+const EditProfile = lazy(() => import("./pages/EditProfile.jsx"))
+const ChangePassword = lazy(() => import("./pages/ChangePassword.jsx"))
 const profileRoutes = (
   <>
     <Route path="/profile/:username" element={<Profile />} />

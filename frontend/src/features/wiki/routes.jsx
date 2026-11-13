@@ -1,7 +1,7 @@
+import { lazy } from "react"
 import { Route } from 'react-router-dom'
-import WikiPages from './pages/WikiPages.jsx'
-import WikiPageDetail from './pages/WikiPageDetail.jsx'
-
+const WikiPages = lazy(() => import("./pages/WikiPages.jsx"))
+const WikiPageDetail = lazy(() => import("./pages/WikiPageDetail.jsx"))
 // relative to /repositories/:repoId (see RepoLayout)
 const wikiRoutes = (
   <>

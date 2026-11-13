@@ -1,8 +1,8 @@
+import { lazy } from "react"
 import { Route } from 'react-router-dom'
-import Issues from './pages/Issues.jsx'
-import CreateIssue from './pages/CreateIssue.jsx'
-import IssueDetail from './pages/IssueDetail.jsx'
-
+const Issues = lazy(() => import("./pages/Issues.jsx"))
+const CreateIssue = lazy(() => import("./pages/CreateIssue.jsx"))
+const IssueDetail = lazy(() => import("./pages/IssueDetail.jsx"))
 // relative to /repositories/:repoId (see RepoLayout)
 const issueRoutes = (
   <>

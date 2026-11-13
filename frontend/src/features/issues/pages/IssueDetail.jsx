@@ -66,7 +66,7 @@ export default function IssueDetail() {
         <p className="text-sm text-muted mt-2">by @{issue.created_by}</p>
         <p className="text-sm text-fg mt-4">{issue.description}</p>
 
-        {canManage && issue.status === 'open' && (
+        {(canManage || issue.created_by === user?.username) && issue.status === 'open' && (
           <button
             onClick={handleClose}
             className="mt-6 text-sm text-danger hover:underline"

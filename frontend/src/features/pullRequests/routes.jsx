@@ -1,8 +1,8 @@
+import { lazy } from "react"
 import { Route } from 'react-router-dom'
-import PullRequests from './pages/PullRequests.jsx'
-import PullRequestDetail from './pages/pullRequestDetail.jsx'
-import CreatePullRequest from './pages/createPullRequest.jsx'
-
+const PullRequests = lazy(() => import("./pages/PullRequests.jsx"))
+const PullRequestDetail = lazy(() => import("./pages/pullRequestDetail.jsx"))
+const CreatePullRequest = lazy(() => import("./pages/createPullRequest.jsx"))
 // relative to /repositories/:repoId (see RepoLayout)
 const pullRequestRoutes = (
   <>

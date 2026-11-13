@@ -1,6 +1,6 @@
+import { lazy } from "react"
 import { Route } from 'react-router-dom'
-import CodePage from './pages/CodePage.jsx'
-
+const CodePage = lazy(() => import("./pages/CodePage.jsx"))
 const fileRoutes = (
   <>
     <Route path="code" element={<CodePage />} />

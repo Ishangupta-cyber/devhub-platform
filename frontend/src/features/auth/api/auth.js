@@ -1,5 +1,6 @@
 import axios from "axios";
 import apiClient from "../../../api/client";
+import { API_URL } from "../../../api/config";
 
 export const loginUser= (email,password) =>{
   return apiClient.post('/auth/login/', { email, password })
@@ -15,7 +16,7 @@ export const getCurrentUser = () => {
 }
 
 export const refreshToken=(refreshToken)=>{
-  return axios.post(`${import.meta.env.VITE_API_URL}/auth/refresh/`,{
+  return axios.post(`${API_URL}/auth/refresh/`,{
     refresh:refreshToken
   })
 }

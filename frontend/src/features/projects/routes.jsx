@@ -1,7 +1,7 @@
+import { lazy } from "react"
 import { Route } from 'react-router-dom'
-import ProjectsList from './pages/ProjectList.jsx'
-import ProjectBoard from './pages/ProjectBoard.jsx'
-
+const ProjectsList = lazy(() => import("./pages/ProjectList.jsx"))
+const ProjectBoard = lazy(() => import("./pages/ProjectBoard.jsx"))
 // relative to /repositories/:repoId (see RepoLayout)
 const projectRoutes = (
   <>

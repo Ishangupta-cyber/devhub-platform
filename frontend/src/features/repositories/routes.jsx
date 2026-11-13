@@ -1,7 +1,7 @@
+import { lazy } from "react"
 import { Route } from 'react-router-dom'
-import Repositories from './pages/Repositories.jsx'
-import CreateRepository from './pages/CreateRepository.jsx'
-
+const Repositories = lazy(() => import("./pages/Repositories.jsx"))
+const CreateRepository = lazy(() => import("./pages/CreateRepository.jsx"))
 const repositoryRoutes = (
   <>
     <Route path="/repositories" element={<Repositories />} />
