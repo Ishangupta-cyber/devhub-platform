@@ -2,7 +2,11 @@ import React from 'react'
 import { useState } from 'react'
 import { loginUser } from '../api/auth'
 import { useAuth } from '../../../hooks/useAuth'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import GoogleSignInButton from '../components/GoogleSignInButton'
+
+// Public demo account created by `manage.py seed_demo_data`.
+const DEMO = { email: 'alice@devhub.local', password: 'Demo@1234' }
 
 function Login() {
 
@@ -13,13 +17,11 @@ function Login() {
   const {login}=useAuth()
   const navigate=useNavigate()
 
-  const handleSubmit=async(e)=>{
-    
-    e.preventDefault()
+  const signIn=async(loginEmail,loginPassword)=>{
     setError("")
     setLoading(true)
     try {
-      const { data } = await loginUser(email, password)
+      const { data } = await loginUser(loginEmail, loginPassword)
       login({access:data.access,refresh:data.refresh})
       setLoading(false)
       navigate("/")
@@ -33,6 +35,17 @@ function Login() {
   }
   setLoading(false)
 }
+  }
+
+  const handleSubmit=(e)=>{
+    e.preventDefault()
+    signIn(email,password)
+  }
+
+  const tryDemo=()=>{
+    setEmail(DEMO.email)
+    setPassword(DEMO.password)
+    signIn(DEMO.email,DEMO.password)
   }
 
  return (
@@ -99,9 +112,24 @@ function Login() {
               </button>
             </form>
 
+            <GoogleSignInButton onError={setError} />
+
+            <div className="mt-6 rounded-md border border-dashed border-border bg-subtle px-4 py-3 text-center">
+              <p className="text-sm text-fg">Just looking around?</p>
+              <button
+                type="button"
+                onClick={tryDemo}
+                disabled={loading}
+                className="mt-1 text-sm font-medium text-accent hover:underline disabled:opacity-50"
+              >
+                Explore with the demo account →
+              </button>
+              <p className="text-[11px] font-mono text-muted mt-1">{DEMO.email} · {DEMO.password}</p>
+            </div>
+
             <p className="text-sm text-muted mt-6 text-center">
               Don't have an account?{' '}
-              <a href="/register" className="text-accent hover:underline">Sign up</a>
+              <Link to="/register" className="text-accent hover:underline">Sign up</Link>
             </p>
           </div>
         </div>

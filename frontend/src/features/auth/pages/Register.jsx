@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { registerUser } from '../api/auth'
+import GoogleSignInButton from '../components/GoogleSignInButton'
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -141,6 +142,8 @@ function Register() {
                 {loading ? 'Creating account…' : 'Create account'}
               </button>
             </form>
+
+            <GoogleSignInButton text="signup_with" onError={setError} />
 
             <p className="text-sm text-muted mt-6 text-center">
               Already have an account?{' '}

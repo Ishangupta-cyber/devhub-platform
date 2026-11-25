@@ -209,6 +209,9 @@ REST_FRAMEWORK = {
     },
 }
 
+# OAuth 2.0 Web client id from Google Cloud Console (public, not a secret).
+GOOGLE_CLIENT_ID = config('GOOGLE_CLIENT_ID', default='')
+
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),

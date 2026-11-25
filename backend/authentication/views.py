@@ -7,6 +7,15 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
+from .google import GoogleAuthError, get_or_create_google_user, verify_google_token
+
+# Public demo accounts (see seed_demo_data): anyone can log in to them, so no
+# one may change their password and lock everybody else out.
+DEMO_EMAIL_DOMAIN = "@devhub.local"
+
+
+def is_demo_account(user):
+  return user.email.endswith(DEMO_EMAIL_DOMAIN) and not user.is_superuser
 
 
 # Create your views here.
@@ -56,6 +65,10 @@ class ChangePassword(APIView):
 
   def post(self, request):
     user=request.user
+    if is_demo_account(user):
+      return Response({"error": "The demo account's password can't be changed. Create your own account to try this."},status=status.HTTP_403_FORBIDDEN)
+    if not user.has_usable_password():
+      return Response({"error": "This account signs in with Google and has no password."},status=status.HTTP_400_BAD_REQUEST)
     old_password=request.data.get("old_password")
     new_password=request.data.get("new_password")
 
@@ -77,6 +90,25 @@ class ChangePassword(APIView):
 
 
   
+
+class GoogleLoginView(APIView):
+  """POST {"credential": "<Google ID token>"} -> {"access", "refresh", "created"}"""
+  permission_classes=[AllowAny]
+  authentication_classes=[]
+
+  def post(self,request):
+    credential=request.data.get("credential")
+    if not credential:
+      return Response({"detail": "credential is required."},status=status.HTTP_400_BAD_REQUEST)
+    try:
+      claims=verify_google_token(credential)
+      user,created=get_or_create_google_user(claims)
+    except GoogleAuthError as e:
+      return Response({"detail": str(e)},status=status.HTTP_400_BAD_REQUEST)
+
+    refresh=RefreshToken.for_user(user)
+    return Response({"access": str(refresh.access_token),"refresh": str(refresh),"created": created})
+
 
 class HealthView(APIView):
   """Cheap liveness check: no DB, no auth. Used by Render's health check and

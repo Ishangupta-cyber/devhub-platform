@@ -1,4 +1,5 @@
 import datetime
+import os
 import random
 
 from django.contrib.contenttypes.models import ContentType
@@ -19,15 +20,23 @@ from comments.services import create_comment
 from projects.services import create_project, create_column, add_card
 from wiki.services import create_wiki_page
 from activity.models import Activity
+from organisations.models import Organisation, Membership
+from files.models import FileNode
 from notifications.models import Notification
 
 
+# Public on purpose: shown on the login page as the "Try the demo" account.
 DEMO_PASSWORD = "Demo@1234"
-ADMIN_PASSWORD = "Admin@12345"
+DEMO_EMAIL_DOMAIN = "@devhub.local"
+
+# The superuser is only created when SEED_ADMIN_PASSWORD is set in the
+# environment. A hardcoded admin password in a public repo would hand anyone
+# the Django admin of the live site.
+ADMIN_PASSWORD = os.environ.get("SEED_ADMIN_PASSWORD", "")
+ADMIN_USER = {"email": "admin@devhub.local", "username": "admin", "full_name": "DevHub Admin",
+              "bio": "Platform administrator.", "password": ADMIN_PASSWORD, "superuser": True}
 
 DEMO_USERS = [
-    {"email": "admin@devhub.local", "username": "admin", "full_name": "DevHub Admin",
-     "bio": "Platform administrator.", "password": ADMIN_PASSWORD, "superuser": True},
     {"email": "alice@devhub.local", "username": "alice_dev", "full_name": "Alice Sharma",
      "bio": "Backend engineer. Loves Django and clean APIs.", "password": DEMO_PASSWORD},
     {"email": "bob@devhub.local", "username": "bob_builder", "full_name": "Bob Mehta",
@@ -82,6 +91,96 @@ COMMENT_TEXTS = [
 COLUMN_NAMES = ["Backlog", "In Progress", "Review", "Done"]
 
 
+def _files_for(repo):
+    """A few real-looking files per repository so the Code tab has content."""
+    readme = (
+        f"# {repo.name}\n\n{repo.description}\n\n"
+        "## Getting started\n\n```bash\n"
+        f"git clone https://example.com/{repo.owner.username}/{repo.name}.git\n"
+        f"cd {repo.name}\n```\n\n"
+        "See the wiki for architecture notes and contribution guidelines.\n"
+    )
+    python_service = {
+        "README.md": readme,
+        "requirements.txt": "django==5.2\ndjangorestframework==3.16.0\npsycopg2-binary==2.9.10\n",
+        "app/__init__.py": "",
+        "app/models.py": (
+            "from django.db import models\n\n\n"
+            "class Project(models.Model):\n"
+            "    name = models.CharField(max_length=100)\n"
+            "    created_at = models.DateTimeField(auto_now_add=True)\n\n"
+            "    def __str__(self):\n"
+            "        return self.name\n"
+        ),
+        "app/views.py": (
+            "from rest_framework import viewsets\n\n"
+            "from .models import Project\n"
+            "from .serializers import ProjectSerializer\n\n\n"
+            "class ProjectViewSet(viewsets.ModelViewSet):\n"
+            "    queryset = Project.objects.order_by('-created_at')\n"
+            "    serializer_class = ProjectSerializer\n"
+        ),
+        "tests/test_projects.py": (
+            "from app.models import Project\n\n\n"
+            "def test_project_str():\n"
+            "    assert str(Project(name='demo')) == 'demo'\n"
+        ),
+    }
+    react_app = {
+        "README.md": readme,
+        "package.json": (
+            '{\n  "name": "' + repo.name + '",\n  "private": true,\n'
+            '  "scripts": {\n    "dev": "vite",\n    "build": "vite build"\n  },\n'
+            '  "dependencies": {\n    "react": "^19.0.0",\n    "react-dom": "^19.0.0"\n  }\n}\n'
+        ),
+        "src/App.jsx": (
+            "import { useState } from 'react'\n"
+            "import Button from './components/Button'\n\n"
+            "export default function App() {\n"
+            "  const [count, setCount] = useState(0)\n\n"
+            "  return (\n"
+            "    <main>\n"
+            "      <h1>" + repo.name + "</h1>\n"
+            "      <Button onClick={() => setCount((c) => c + 1)}>Clicked {count} times</Button>\n"
+            "    </main>\n"
+            "  )\n"
+            "}\n"
+        ),
+        "src/components/Button.jsx": (
+            "export default function Button({ children, ...props }) {\n"
+            "  return (\n"
+            '    <button className="btn" {...props}>\n'
+            "      {children}\n"
+            "    </button>\n"
+            "  )\n"
+            "}\n"
+        ),
+        "src/index.css": ".btn {\n  padding: 0.5rem 1rem;\n  border-radius: 0.375rem;\n}\n",
+    }
+    ml_pipeline = {
+        "README.md": readme,
+        "requirements.txt": "pandas==2.2.3\nscikit-learn==1.6.1\n",
+        "pipeline/train.py": (
+            "import pandas as pd\n"
+            "from sklearn.linear_model import LogisticRegression\n\n\n"
+            "def train(csv_path: str) -> LogisticRegression:\n"
+            "    df = pd.read_csv(csv_path)\n"
+            "    X, y = df.drop(columns=['label']), df['label']\n"
+            "    model = LogisticRegression(max_iter=1000)\n"
+            "    model.fit(X, y)\n"
+            "    return model\n\n\n"
+            "if __name__ == '__main__':\n"
+            "    train('data/train.csv')\n"
+        ),
+        "pipeline/config.yaml": "model: logistic_regression\nmax_iter: 1000\ntest_size: 0.2\n",
+    }
+    if repo.name in ("react-dashboard", "design-system", "mobile-app"):
+        return react_app
+    if repo.name == "ml-pipeline":
+        return ml_pipeline
+    return python_service
+
+
 class Command(BaseCommand):
     help = "Seeds the database with demo data (users, repositories, issues, PRs, comments, project boards)."
 
@@ -97,13 +196,18 @@ class Command(BaseCommand):
             self._seed_comments(issues, prs, users_by_username, all_usernames)
             self._seed_projects(repos, issues, prs)
             self._seed_follows(users_by_username)
+            self._seed_organisation(users_by_username, repos)
             self._seed_wiki_pages(repos)
+            self._seed_files(repos)
             self._backfill_activity()
             self._seed_notifications()
 
         self.stdout.write(self.style.SUCCESS("\nDemo data seeded successfully.\n"))
         self.stdout.write("Login credentials:")
-        self.stdout.write(f"  Admin (Django admin + site login): admin@devhub.local / {ADMIN_PASSWORD}")
+        if ADMIN_PASSWORD:
+            self.stdout.write("  Admin (Django admin + site login): admin@devhub.local / $SEED_ADMIN_PASSWORD")
+        else:
+            self.stdout.write("  Admin: skipped (set SEED_ADMIN_PASSWORD to create one)")
         self.stdout.write(f"  Demo users (all share the same password): {DEMO_PASSWORD}")
         for u in DEMO_USERS:
             if not u.get("superuser"):
@@ -111,8 +215,13 @@ class Command(BaseCommand):
 
     def _seed_users(self):
         users = {}
-        for u in DEMO_USERS:
+        for u in ([ADMIN_USER] if ADMIN_PASSWORD else []) + DEMO_USERS:
             user = User.objects.filter(email=u["email"]).first()
+            if user and not u.get("superuser"):
+                # Demo passwords are public: restore them on every run in case
+                # one was changed, so the "Try the demo" login keeps working.
+                user.set_password(u["password"])
+                user.save(update_fields=["password"])
             if not user:
                 if u.get("superuser"):
                     user = User.objects.create_superuser(
@@ -235,6 +344,19 @@ class Command(BaseCommand):
 
         self.stdout.write(f"Created {project_count} project boards, {column_count} columns, {card_count} cards.")
 
+    def _seed_organisation(self, users_by_username, repos):
+        org, created = Organisation.objects.get_or_create(
+            name="DevHub Labs",
+            defaults={"description": "The team building DevHub: API, dashboard, ML and mobile."},
+        )
+        roles = {"alice_dev": "owner", "bob_builder": "admin", "priya_codes": "member", "arjun_ships": "member"}
+        for username, role in roles.items():
+            Membership.objects.get_or_create(organisation=org, user=users_by_username[username], defaults={"role": role})
+        # put the team's repos under the organisation
+        Repository.objects.filter(id__in=[r.id for r in repos], organization__isnull=True).update(organization=org)
+        if created:
+            self.stdout.write("Created organisation: DevHub Labs")
+
     def _seed_follows(self, users_by_username):
         usernames = list(users_by_username.keys())
         created = 0
@@ -276,6 +398,36 @@ class Command(BaseCommand):
                 create_wiki_page(title=title, repository=repo, created_by=repo.owner, content=content)
                 created += 1
         self.stdout.write(f"Created {created} wiki pages.")
+
+    def _seed_files(self, repos):
+        created = 0
+        for repo in repos:
+            if repo.file_nodes.exists():
+                continue
+            folders = {}
+
+            def folder_for(path, repo=repo, folders=folders):
+                parent = None
+                built = ""
+                for part in path.split("/"):
+                    built = f"{built}/{part}" if built else part
+                    if built not in folders:
+                        folders[built] = FileNode.objects.create(
+                            repository=repo, parent=parent, name=part,
+                            node_type=FileNode.NodeType.FOLDER,
+                        )
+                    parent = folders[built]
+                return parent
+
+            for path, content in _files_for(repo).items():
+                folder_path, _, name = path.rpartition("/")
+                FileNode.objects.create(
+                    repository=repo,
+                    parent=folder_for(folder_path) if folder_path else None,
+                    name=name, node_type=FileNode.NodeType.FILE, content=content,
+                )
+                created += 1
+        self.stdout.write(f"Created {created} files.")
 
     def _backfill_activity(self):
         """Activity rows are normally queued to Celery via signals, but no worker

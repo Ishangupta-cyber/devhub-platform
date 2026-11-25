@@ -33,3 +33,6 @@ export const logoutUser=()=>{
 export const changePassword=(data)=>{
   return apiClient.post("/auth/change-password/", data)
 }
+export const googleLogin = (credential) => {
+  return apiClient.post('/auth/google/', { credential })
+}
