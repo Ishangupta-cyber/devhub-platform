@@ -15,7 +15,7 @@ from pathlib import Path
 from django.core.exceptions import ImproperlyConfigured
 from decouple import config
 from datetime import timedelta
-from urllib.parse import urlparse, unquote
+from urllib.parse import urlparse, unquote, parse_qs
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -116,6 +116,11 @@ if DATABASE_URL:
             'PASSWORD': unquote(_db.password or ''),
             'HOST': _db.hostname,
             'PORT': _db.port or 5432,
+            # keep ?sslmode=require etc. from the URL (Neon needs SSL)
+            'OPTIONS': {k: v[-1] for k, v in parse_qs(_db.query).items() if k in ('sslmode', 'channel_binding')},
+            # reuse connections instead of a new TLS handshake per request
+            'CONN_MAX_AGE': 60,
+            'CONN_HEALTH_CHECKS': True,
         }
     }
 else:
